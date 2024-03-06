@@ -1,0 +1,192 @@
+---
+title: Battleship Game
+---
+
+
+%% There is shootMode, which one will track 
+%% player already done how many attack
+
+%% int ShipSunk is optional
+
+%% TargetPlayer can be removed
+
+%% The Grid ocean and target in Interface
+%% must not get;set; publicly
+
+
+classDiagram
+    Ship "1" *-- "1..*" ShipType : Composition
+    IPeg "1" *-- "1..*" PegType : Composition
+
+    IBoard "1" *-- "1..*" IGrid_T_ : Composition
+    IBoard "1" *-- "1..*" IShip : Composition
+    IBoard "1" *-- "1..*" IPeg : Composition
+    
+    IPosition <.. IShip : Dependency
+
+    GameController <.. IPlayer : Dependency
+    GameController <.. IBoard : Dependency
+    GameController <.. IShip : Dependency
+    GameController "1" -- "1..*" IShoot : Association
+    GameController "1" -- "1..*" ShootMode : Association
+    GameController "1" -- "1..*" PlayerData : Association
+    GameController "1" -- "1..*" IPeg : Association
+
+    IShoot <|-- ShootMissile : Realization
+    IShoot <|-- ShootNuclear : Realization
+    IShoot <|-- ShootFire : Realization
+
+    IPosition <|-- Position : Realization
+    IGrid_T_ <|-- Grid_T_ : Realization
+    IPlayer <|-- Player : Realization
+    IBoard <|-- Board : Realization
+    IShip <|-- Ship : Realization
+    IPeg <|-- Peg : Realization
+
+
+class IBoard{
+    <<Interface>>
+    +int ID : readonly
+    +IGrid~IShip~ gridShip get;
+    +IGrid~IPeg~ gridPeg get;
+}
+
+class IGrid_T_{
+    <<Interface>>
+    +T[,] Pieces get;set;
+}
+
+class IPosition{
+    <<Interface>>
+    +int x get;set;
+    +int y get;set;
+}
+
+class IShip{
+    <<Interface>>
+    +int ID : readonly 
+    +List ~Position~ position get;set;
+    +bool isSunk
+
+    +PlaceShip(int startCoordinate, string orientation) : List ~Position~
+}
+
+class IPeg{
+    <<Interface>>
+    +PegType type : readonly
+    +int ID : readonly
+    +PlaceInGrid(Position position)
+}
+
+class IPlayer{
+    <<Interface>>
+    +int ID : readonly
+    +string name : readonly
+}
+
+class IShoot{
+    <<Interface>>
+    +Shoot(Position position) : List~Position~
+}
+
+class Board{
+    +int ID : readonly
+    +Grid~IShip~ gridShip get; private set;
+    +Grid~IPeg~ gridPeg get; private set;
+
+    +Board(IGrid~IShip~ gridShip, IGrid~IPeg~ gridPeg)
+}
+
+class Grid_T_{
+    +T[,] Pieces : readonly
+    +Grid(T[,] Pieces)
+}
+
+class Position{
+    +int x get;set;
+    +int y get;set;
+    +Position(x,y)  
+    +GetShip(Position position) : Ship
+}
+
+class Ship{
+    +int ID : readonly 
+    +ShipType Type : readonly
+    -List ~Position~ position : readonly
+    +bool isSunk
+    +Ship(int ID, ShipType Type)
+    +GetPosition() : List ~Position~
+    +PlaceShip(int startCoordinate, string orientation) : List ~Position~
+}
+
+class ShipType {
+    <<Enumeration>>
+    Carrier = 5,
+    Battleship = 4,
+    Cruiser = 3,
+    Submarine = 3,
+    Destroyer = 2
+}
+
+class Peg{
+    +PegType type : readonly
+    +int ID : readonly
+    +PlaceInGrid(Position position)
+}
+
+class PegType{
+    <<Enumeration>>
+    Hit,
+    Miss
+}
+
+class Player{
+    +int ID: readonly
+    +string name
+
+    +Player(int ID, string name)
+  }
+
+class PlayerData{
+    +IBoard board 
+    +List ~Ship~ playerShip 
+    +int shipSunk
+    +Dictionary<.ShootMode, int> _ammo
+}
+
+class ShootFire{
+    +Shoot(Position position) : List~Position~
+}
+
+class ShootMissile{
+    +Shoot(Position position) : List~Position~
+}
+
+class ShootNuclear{
+    +Shoot(Position position) : List~Position~
+}
+
+class ShootMode{
+    <<Enumeration>>
+    Fire, 
+    Missile,
+    Nuclear
+}
+
+class GameController{
+    -int _turn
+    -List <.IPlayer> _players
+    -Dictionary<.IPlayer, .PlayerData> _playerData
+    -IPlayer _activePlayer
+   
+    +GameController(IPlayer player1, IPlayer player2, IBoard board1, IBoard board2)
+    +StartTurn() : void
+    +NextTurn() : int
+    +PlayerPlaceShip(IPlayer player, IShip ship, int startCoordinate, string orientation) : void
+    +PlayerShoot(IPlayer originPlayer, IPlayer targetPlayer, IPosition position, IShoot shootMode) : void
+    +GetHitOrMiss(IPlayer player, IPosition position) : bool
+    +PlacePeg(IPeg peg, IPosition position) : void
+    +GetShipFromPos(IPosition position) : IShip
+    +GetPosFromShip(IShip ship) : IPosition
+    +SinkShip(IShip ship) : bool
+}
