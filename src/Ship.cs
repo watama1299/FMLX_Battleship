@@ -10,6 +10,7 @@ public class Ship : IShip
     public Ship(int id, ShipType type) {
         Id = id;
         Type = type;
+        Positions = new();
     }
 
     public List<Position> GetPositions() {
@@ -18,8 +19,6 @@ public class Ship : IShip
 
     public List<Position> PlaceShip(int startCoords, ShipOrientation orientation) {
         var pos = new List<Position>();
-        
-        
         return pos;
     }
 }
