@@ -1,3 +1,5 @@
+using Battleship.Enums;
+
 namespace Battleship;
 
 public interface IShip
@@ -6,5 +8,5 @@ public interface IShip
     public List<Position> Positions {get; set;}
     public bool HasSunk {get; set;}
 
-    public List<Position> PlaceShip(int startCoords, ShipOrientation orientation);
+    public List<Position> PlaceShip(Position startCoords, ShipOrientation orientation);
 }

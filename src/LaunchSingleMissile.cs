@@ -3,9 +3,11 @@ namespace Battleship;
 
 public class LaunchSingleMissile : IShoot
 {
-    public List<Position> Shoot(Position pos)
+    public List<Position> Shoot(Position origin)
     {
-        return new List<Position>();
+        var output = new List<Position>(); 
+        output.Add(origin);
+        return output;
     }
 
 }

@@ -1,4 +1,4 @@
-namespace Battleship;
+namespace Battleship.UNUSED;
 
 public enum ShootMode
 {

@@ -1,3 +1,5 @@
+using Battleship.Enums;
+
 namespace Battleship;
 
 public interface IPeg
