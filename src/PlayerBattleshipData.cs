@@ -3,9 +3,9 @@ namespace Battleship;
 public class PlayerBattleshipData
 {
     public IBoard PlayerBoard {get; private set;}
-    public List<IShip> PlayerShips {get; private set;}
+    public List<IShip> PlayerShips {get; private set;} = new();
     public int ShipsSunk {get; private set;} = 0;
-    public Dictionary<IShoot, int> Ammo {get; private set;}
+    public Dictionary<IShoot, int> Ammo {get; private set;} = new();
 
     public PlayerBattleshipData(IBoard playerBoard, List<IShip> playerShips) {
         PlayerBoard = playerBoard;

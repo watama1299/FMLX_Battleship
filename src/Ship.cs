@@ -3,28 +3,33 @@ namespace Battleship;
 
 public class Ship : IShip
 {
-    public int Id {get; private set;}
+    // public int Id {get; private set;}
     public ShipType Type {get; private set;}
-    public List<Position> Positions {get; set;}
-    public bool HasSunk {get; set;}
+    public Dictionary<Position, PegType> Positions {get; private set;}
+    public bool HasSunk {get; private set;}
 
-    public Ship(int id, ShipType type) {
-        Id = id;
+
+
+    public Ship(ShipType type) {
+        // Id = id;
         Type = type;
         Positions = new();
     }
 
-    public List<Position> PlaceShip(Position startCoords, ShipOrientation orientation) {
-        var pos = new List<Position>();
-        if (orientation == ShipOrientation.VERTICAL) {}
-        return pos;
-    }
-
-    public List<Position> GetPositions() {
+    public Dictionary<Position, PegType> PlaceShip(Position startCoords, ShipOrientation orientation) {
+        var tempPos = GeneratePositions(startCoords, orientation);
+        PlaceShip(tempPos);
         return Positions;
     }
 
-    private List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
+    public Dictionary<Position, PegType> PlaceShip(List<Position> generatedPositons) {
+        foreach (var pos in generatedPositons) {
+            Positions.Add(pos, PegType.NONE);
+        }
+        return Positions;
+    }
+
+    public List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
         var pos = new List<Position>();
         int length = (int) Type;
         if (orientation == ShipOrientation.VERTICAL) {
@@ -37,5 +42,13 @@ public class Ship : IShip
             }
         }
         return pos;
+    }
+
+    public bool SinkShip() {
+        if (!HasSunk) {
+            HasSunk = true;
+        }
+
+        return HasSunk;
     }
 }

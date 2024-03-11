@@ -8,7 +8,7 @@ public class Peg : IPeg
 
     public PegType Type {get; private set;}
 
-    public bool PlaceInGrid(Position pos) {
-        return true;
-    }
+    // public bool PlaceInGrid(Position pos) {
+    //     return true;
+    // }
 }
