@@ -3,13 +3,16 @@ namespace Battleship;
 public class Grid<T> : IGrid<T>
 {
     public T[,] Items {get; private set;}
+    public int TotalGrid {get; private set;}
     
     public Grid(int size) {
         Items = new T[size, size];
+        TotalGrid = size * size;
     }
 
     public Grid(int rows, int cols) {
         Items = new T[rows, cols];
+        TotalGrid = rows * cols;
     }
 
     public bool IsPositionEmpty(Position position) {

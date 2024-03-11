@@ -3,24 +3,29 @@ namespace Battleship;
 public class PlayerBattleshipData
 {
     public IBoard PlayerBoard {get; private set;}
-    public List<IShip> PlayerShips {get; private set;} = new();
     public int ShipsSunk {get; private set;} = 0;
     public Dictionary<IShoot, int> Ammo {get; private set;} = new();
 
-    public PlayerBattleshipData(IBoard playerBoard, List<IShip> playerShips) {
-        PlayerBoard = playerBoard;
-        PlayerShips = playerShips;
-        Ammo = new();
+
+
+    public PlayerBattleshipData(
+        IBoard playerBoard,
+        Dictionary<IShoot, int> ammoAndAmount
+        ) {
+            PlayerBoard = playerBoard;
+            foreach (var ammo in ammoAndAmount) {
+                GiveAmmo(ammo.Key, ammo.Value);
+            }
     }
 
-    public bool AddShipSunk() {
-        if (ShipsSunk >= PlayerShips.Capacity) {
-            return false;
+
+
+    public int GetAmmoCount(IShoot ammoType) {
+        if (!Ammo.ContainsKey(ammoType)) {
+            return -1;
         }
-        ShipsSunk += 1;
-        return true;
+        return Ammo[ammoType];
     }
-
     public bool GiveAmmo(IShoot ammoType, int amount) {
         if (Ammo.ContainsKey(ammoType)) {
             Ammo[ammoType] += amount;

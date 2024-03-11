@@ -6,6 +6,7 @@ public interface IBoard
 {
     // public int Id {get;}
     public IGrid<IShip> GridShip {get;}
+    public Dictionary<IShip, bool> ShipsOnBoard {get;}
     public IGrid<PegType> GridPeg {get;}
 
     public bool PutShipOnBoard(
@@ -14,6 +15,7 @@ public interface IBoard
         ShipOrientation orientation
         );
 
+    public IShip? GetShipOnBoard(Position position);
     public bool CheckShipGridPosition(Position position);
     public bool CheckShipGridPosition(List<Position> positions);
     public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IShoot shotType);

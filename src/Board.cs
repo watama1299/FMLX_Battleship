@@ -6,6 +6,7 @@ public class Board : IBoard
 {
     // public int Id {get; private set;}
     public IGrid<IShip> GridShip {get; private set;}
+    public Dictionary<IShip, bool> ShipsOnBoard {get; private set;} = new();
     public IGrid<PegType> GridPeg {get; private set;}
 
 
@@ -13,11 +14,15 @@ public class Board : IBoard
     public Board(int squareGridSize) {
         GridShip = new Grid<IShip>(squareGridSize);
         GridPeg = new Grid<PegType>(squareGridSize);
+
+
     }
 
     public Board(int rows, int cols) {
         GridShip = new Grid<IShip>(rows, cols);
         GridPeg = new Grid<PegType>(rows, cols);
+
+        
     }
 
     public bool PutShipOnBoard(
@@ -39,8 +44,13 @@ public class Board : IBoard
                 GridShip.PlaceOnGrid(pos, playerShip);
             }
             playerShip.PlaceShip(shipPositions);
+            ShipsOnBoard.Add(playerShip, playerShip.IsAlive);
             return true;
         }
+    public IShip? GetShipOnBoard(Position position) {
+        var ship = GridShip.Items[position.X, position.Y];
+        return ship;
+    }
 
     public bool CheckShipGridPosition(Position position) {
         return GridShip.IsPositionEmpty(position);
@@ -63,7 +73,7 @@ public class Board : IBoard
                 IShip tempShip = new Ship(ShipType.NO_SHIP);
                 var tempList = new List<Position>();
                 tempList.Add(pos);
-                tempShip.PlaceShip(tempList);
+                tempShip.PlaceShip(tempList, PegType.MISS);
                 GridShip.PlaceOnGrid(pos, tempShip);
                 continue;
             }
@@ -78,10 +88,13 @@ public class Board : IBoard
             // else pegtype hit
             output.Add(pos, PegType.HIT);
 
-            // need to remove the hit location from the ship location
-            IShip ship = GridShip.Items[pos.X, pos.Y];
-            ship.Positions.Remove(pos);
-            if (ship.Positions.Count == 0) ship.SinkShip();
+            // update ship info to hit
+            IShip attackedShip = GridShip.Items[pos.X, pos.Y];
+            attackedShip.Positions[pos] = PegType.HIT;
+            if (!attackedShip.Positions.ContainsValue(PegType.NONE)) {
+                bool sunk = attackedShip.SinkShip();
+                ShipsOnBoard[attackedShip] = sunk;
+            }
         }
 
         return output;

@@ -13,6 +13,6 @@ public class Position : IPosition
     }
 
     public Ship GetShip(Position pos) {
-        return new Ship(-1, ShipType.DESTROYER);
+        return new Ship(ShipType.DESTROYER);
     }
 }

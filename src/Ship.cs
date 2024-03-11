@@ -3,17 +3,16 @@ namespace Battleship;
 
 public class Ship : IShip
 {
-    // public int Id {get; private set;}
     public ShipType Type {get; private set;}
     public Dictionary<Position, PegType> Positions {get; private set;}
-    public bool HasSunk {get; private set;}
+    public bool IsAlive {get; private set;}
 
 
 
     public Ship(ShipType type) {
-        // Id = id;
         Type = type;
         Positions = new();
+        IsAlive = true;
     }
 
     public Dictionary<Position, PegType> PlaceShip(Position startCoords, ShipOrientation orientation) {
@@ -22,9 +21,9 @@ public class Ship : IShip
         return Positions;
     }
 
-    public Dictionary<Position, PegType> PlaceShip(List<Position> generatedPositons) {
+    public Dictionary<Position, PegType> PlaceShip(List<Position> generatedPositons, PegType peg = PegType.NONE) {
         foreach (var pos in generatedPositons) {
-            Positions.Add(pos, PegType.NONE);
+            Positions.Add(pos, peg);
         }
         return Positions;
     }
@@ -45,10 +44,10 @@ public class Ship : IShip
     }
 
     public bool SinkShip() {
-        if (!HasSunk) {
-            HasSunk = true;
+        if (IsAlive) {
+            IsAlive = false;
         }
 
-        return HasSunk;
+        return IsAlive;
     }
 }
