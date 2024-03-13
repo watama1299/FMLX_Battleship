@@ -20,6 +20,6 @@ public interface IBoard
     public IShip? GetShipOnBoard(Position position);
     public bool CheckShipGridPosition(Position position);
     public bool CheckShipGridPosition(List<Position> positions);
-    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IShoot shotType);
+    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType);
     public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions);
 }

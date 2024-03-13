@@ -13,12 +13,14 @@ public abstract class Ship : IShip
         var tempPos = GeneratePositions(startCoords, orientation);
         return AssignPositions(tempPos);
     }
+
     public Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE) {
         foreach (var pos in generatedPositons) {
             Positions.Add(pos, peg);
         }
         return Positions;
     }
+
     public List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
         var possiblePositions = new List<Position>();
         if (orientation == ShipOrientation.VERTICAL) {
@@ -32,6 +34,7 @@ public abstract class Ship : IShip
         }
         return possiblePositions;
     }
+    
     public bool SinkShip() {
         if (IsAlive & !Positions.Values.ToList().Contains(PegType.NONE) ) {
             IsAlive = false;

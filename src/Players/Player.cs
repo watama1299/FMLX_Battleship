@@ -12,8 +12,7 @@ public class Player : IPlayer
     }
 
     // override object.Equals
-    public override bool Equals(object? obj)
-    {        
+    public override bool Equals(object? obj) {        
         if (obj == null || GetType() != obj.GetType())
         {
             return false;
@@ -24,9 +23,7 @@ public class Player : IPlayer
     }
     
     // override object.GetHashCode
-    public override int GetHashCode()
-    {
-        // TODO: write your implementation of GetHashCode() here
-        return Id.GetHashCode() * Name.GetHashCode();
+    public override int GetHashCode() {
+        return HashCode.Combine(Id, Name);
     }
 }

@@ -8,17 +8,19 @@ public class GameController
 {
     private IBoard _templateBoard;
     private List<IShip> _templateShips;
-    private Dictionary<IShoot, int> _templateAmmo;
+    private Dictionary<IAmmo, int> _templateAmmo;
     private Dictionary<IPlayer, PlayerBattleshipData> _playersData = new(2);
     private Queue<IPlayer> _activePlayer = new(2);
     public GameStatus Status {get; private set;}
+
+
 
     public GameController(
         IPlayer p1,
         IPlayer p2,
         IBoard board,
         List<IShip> ships,
-        Dictionary<IShoot, int>? additionalAmmoType = null
+        Dictionary<IAmmo, int>? additionalAmmoType = null
         ) {
             _templateBoard = board;
             _templateShips = ships;
@@ -55,6 +57,9 @@ public class GameController
             var playerShips = GetPlayerShipsAll(player);
             if (playerShips is null || playerShips.Count == 0) {
                 throw new Exception("Player has no ships!");
+            }
+            if (playerShips.Count < _templateShips.Count) {
+                throw new Exception("Player havent't put down all their ships!");
             }
         }
 
@@ -130,7 +135,7 @@ public class GameController
         IPlayer attacker,
         IPlayer target,
         Position position,
-        IShoot shootMode
+        IAmmo shootMode
         ) {
             if (attacker.Equals(target)) throw new Exception("Player cannot chose themselves as a target!");
 
@@ -154,7 +159,7 @@ public class GameController
 
             return true;
     }
-    public void GivePlayersAdditionalAmmo(IShoot ammoType, int amount) {
+    public void GivePlayersAdditionalAmmo(IAmmo ammoType, int amount) {
         foreach (var pd in _playersData.Values) {
             pd.GiveAmmo(ammoType, amount);
         }
@@ -219,12 +224,12 @@ public class GameController
         }
         return sunkShips;
     }
-    public Dictionary<IShoot, int> GetPlayerAmmoStock(IPlayer player) {
+    public Dictionary<IAmmo, int> GetPlayerAmmoStock(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         return _playersData[player].Ammo;
     }
-    public int GetPlayerAmmoCount(IPlayer player, IShoot ammoType) {
+    public int GetPlayerAmmoCount(IPlayer player, IAmmo ammoType) {
         var ammo = GetPlayerAmmoStock(player);
         return ammo[ammoType];
     }

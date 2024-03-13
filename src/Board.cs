@@ -64,7 +64,7 @@ public class Board : IBoard
 
 
 
-    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IShoot shotType) {
+    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType) {
         Dictionary<Position, PegType> output = new();
         
         List<Position> positionsShot = shotType.Shoot(originPosition);

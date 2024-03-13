@@ -1,6 +1,6 @@
 namespace Battleship.Ammo;
 
-public interface IShoot
+public interface IAmmo
 {
     public List<Position> Shoot(Position origin);
 }

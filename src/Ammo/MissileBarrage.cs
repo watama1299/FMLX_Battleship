@@ -1,6 +1,6 @@
 namespace Battleship.Ammo;
 
-public class MissileBarrage : IShoot
+public class MissileBarrage : IAmmo
 {
     public List<Position> Shoot(Position origin)
     {
@@ -16,5 +16,22 @@ public class MissileBarrage : IShoot
         output.Add(new Position(origin.X, origin.Y + 1));
         
         return output;
+    }
+
+    // override object.Equals
+    public override bool Equals(object? obj)
+    {        
+        if (obj == null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // override object.GetHashCode
+    public override int GetHashCode()
+    {
+        return this.GetType().GetHashCode();
     }
 }
