@@ -1,5 +1,5 @@
-using Battleship.Enums;
-namespace Battleship;
+using Battleship.Utils.Enums;
+namespace Battleship.UNUSED;
 
 public class SolidShip
 {

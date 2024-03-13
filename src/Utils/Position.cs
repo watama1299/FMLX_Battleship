@@ -1,4 +1,4 @@
-namespace Battleship;
+namespace Battleship.Utils;
 
 public struct Position
 {

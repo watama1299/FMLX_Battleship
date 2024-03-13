@@ -1,8 +1,9 @@
-using Battleship.Enums;
+using Battleship.Utils.Enums;
+using Battleship.Utils;
 using Battleship.Ships;
 using Battleship.Ammo;
 
-namespace Battleship;
+namespace Battleship.GameBoard;
 
 public interface IBoard
 {

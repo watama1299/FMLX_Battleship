@@ -1,7 +1,9 @@
-using Battleship.Enums;
-using Battleship.Ships;
 using Battleship.Ammo;
+using Battleship.GameBoard;
 using Battleship.Players;
+using Battleship.Ships;
+using Battleship.Utils;
+using Battleship.Utils.Enums;
 namespace Battleship;
 
 public class GameController

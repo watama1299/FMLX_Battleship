@@ -1,9 +1,9 @@
+using Battleship.Utils;
 namespace Battleship.Ammo;
 
 public class MissileBarrage : IAmmo
 {
-    public List<Position> Shoot(Position origin)
-    {
+    public List<Position> Shoot(Position origin) {
         var output = new List<Position>();
         output.Add(origin);
 
@@ -19,8 +19,7 @@ public class MissileBarrage : IAmmo
     }
 
     // override object.Equals
-    public override bool Equals(object? obj)
-    {        
+    public override bool Equals(object? obj) {        
         if (obj == null || GetType() != obj.GetType())
         {
             return false;
@@ -30,8 +29,7 @@ public class MissileBarrage : IAmmo
     }
     
     // override object.GetHashCode
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return this.GetType().GetHashCode();
     }
 }

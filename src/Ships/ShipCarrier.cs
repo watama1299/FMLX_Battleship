@@ -1,4 +1,5 @@
-using Battleship.Enums;
+using Battleship.Utils;
+using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
 public class ShipCarrier : Ship, IShip

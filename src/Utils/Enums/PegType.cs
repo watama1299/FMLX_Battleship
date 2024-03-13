@@ -1,4 +1,4 @@
-namespace Battleship.Enums;
+namespace Battleship.Utils.Enums;
 
 public enum PegType
 {

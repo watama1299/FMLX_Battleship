@@ -1,4 +1,4 @@
-namespace Battleship.Enums;
+namespace Battleship.UNUSED;
 
 public enum ShipState
 {

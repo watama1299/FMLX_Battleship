@@ -1,4 +1,5 @@
-namespace Battleship;
+using Battleship.Utils;
+namespace Battleship.GameBoard;
 
 public class Grid<T> : IGrid<T>
 {

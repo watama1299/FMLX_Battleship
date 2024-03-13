@@ -1,6 +1,6 @@
-using Battleship.Enums;
+using Battleship.Utils.Enums;
 
-namespace Battleship;
+namespace Battleship.UNUSED;
 
 public interface IPeg
 {

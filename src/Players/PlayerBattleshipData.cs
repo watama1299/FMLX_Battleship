@@ -1,4 +1,5 @@
 using Battleship.Ammo;
+using Battleship.GameBoard;
 namespace Battleship;
 
 public class PlayerBattleshipData
@@ -20,7 +21,6 @@ public class PlayerBattleshipData
                 Ammo.Add(ammo.Key, ammo.Value);
             }
     }
-
 
 
     public int GetAmmoCount(IAmmo ammoType) {
