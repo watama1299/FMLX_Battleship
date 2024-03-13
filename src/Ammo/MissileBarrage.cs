@@ -1,6 +1,6 @@
-namespace Battleship;
+namespace Battleship.Ammo;
 
-public class LaunchMissileBarrage : IShoot
+public class MissileBarrage : IShoot
 {
     public List<Position> Shoot(Position origin)
     {

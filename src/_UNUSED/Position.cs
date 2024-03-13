@@ -12,7 +12,7 @@ public class Position : IPosition
         Y = y;
     }
 
-    public Ship GetShip(Position pos) {
-        return new Ship(ShipType.DESTROYER);
+    public SolidShip GetShip(Position pos) {
+        return new SolidShip(ShipType.DESTROYER);
     }
 }

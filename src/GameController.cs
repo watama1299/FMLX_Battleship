@@ -1,15 +1,15 @@
-using System.Net;
 using Battleship.Enums;
+using Battleship.Ships;
+using Battleship.Ammo;
+using Battleship.Players;
 namespace Battleship;
 
 public class GameController
 {
-    // private int _turn;
     private IBoard _templateBoard;
     private List<IShip> _templateShips;
     private Dictionary<IShoot, int> _templateAmmo;
-    private List<IPlayer> _players = new(2);
-    private Dictionary<IPlayer, PlayerBattleshipData> _playerData = new(2);
+    private Dictionary<IPlayer, PlayerBattleshipData> _playersData = new(2);
     private Queue<IPlayer> _activePlayer = new(2);
     public GameStatus Status {get; private set;}
 
@@ -18,29 +18,26 @@ public class GameController
         IPlayer p2,
         IBoard board,
         List<IShip> ships,
-        Dictionary<IShoot, int> ammoAndAmount
+        Dictionary<IShoot, int>? additionalAmmoType = null
         ) {
-            _players.Add(p1);
-            _players.Add(p2);
-
             _templateBoard = board;
             _templateShips = ships;
 
-            // make sure theres enough ammo provided by user
-            int totalAmmo = 0;
-            foreach (var amount in ammoAndAmount.Values) {
-                totalAmmo += amount;
+            if (additionalAmmoType?.Count > 0) {
+                _templateAmmo = additionalAmmoType;
+            } else {
+                _templateAmmo = new();
             }
-            if (totalAmmo < board.GridPeg.TotalGrid) {
-                throw new Exception($"Please provide enough ammo for the size of the grid!\nGrid size: {board.GridPeg.TotalGrid}");
+
+            try {
+                var dataP1 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
+                _playersData.Add(p1, dataP1);
+
+                var dataP2 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
+                _playersData.Add(p2, dataP2);
+            } catch (Exception) {
+                throw;
             }
-            _templateAmmo = ammoAndAmount;
-
-            var dataP1 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
-            _playerData.Add(p1, dataP1);
-
-            var dataP2 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
-            _playerData.Add(p2, dataP2);
 
             Status = GameStatus.INIT;
     }
@@ -52,14 +49,22 @@ public class GameController
     */
     public GameStatus StartGame() {
         if (Status != GameStatus.INIT) return Status;
+        
+        List<IPlayer> players = _playersData.Keys.ToList();
+        foreach (var player in players) {
+            var playerShips = GetPlayerShipsAll(player);
+            if (playerShips is null || playerShips.Count == 0) {
+                throw new Exception("Player has no ships!");
+            }
+        }
 
         Random rng = new();
         if (rng.Next(10) < 5) {
-            _activePlayer.Enqueue(_players[0]);
-            _activePlayer.Enqueue(_players[1]);
+            _activePlayer.Enqueue(players[0]);
+            _activePlayer.Enqueue(players[1]);
         } else {
-            _activePlayer.Enqueue(_players[1]);
-            _activePlayer.Enqueue(_players[0]);
+            _activePlayer.Enqueue(players[1]);
+            _activePlayer.Enqueue(players[0]);
         }
 
         Status = GameStatus.ONGOING;
@@ -73,10 +78,7 @@ public class GameController
 
         // get next player
         var nextPlayer = _activePlayer.Dequeue();
-        var playerShips = _playerData[nextPlayer].PlayerBoard.ShipsOnBoard;
-        if (playerShips is null || playerShips.Count == 0) {
-            throw new Exception("Player has no ships!");
-        }
+        var playerShips = GetPlayerShipsStatus(nextPlayer);
 
         // check if next player still has live ships
         if (playerShips.ContainsValue(true)) {
@@ -91,10 +93,10 @@ public class GameController
         if (Status != GameStatus.ENDED) return Status;
 
         var tempData = new Dictionary<IPlayer, PlayerBattleshipData>(2);
-        foreach (var player in _players) {
+        foreach (var player in _playersData.Keys) {
             tempData.Add(player, new PlayerBattleshipData(_templateBoard, _templateAmmo));
         }
-        _playerData = tempData;
+        _playersData = tempData;
         Status = GameStatus.INIT;
         return Status;
     }
@@ -119,7 +121,7 @@ public class GameController
         ) {
             if (!_templateShips.Contains(ship)) return false;
 
-            var playerBoard = _playerData[player].PlayerBoard;
+            var playerBoard = GetPlayerBoard(player);
             bool successfulPlacement = playerBoard.PutShipOnBoard(ship, startCoord, orientation);
             if (!successfulPlacement) return false;
             return true;
@@ -133,21 +135,29 @@ public class GameController
             if (attacker.Equals(target)) throw new Exception("Player cannot chose themselves as a target!");
 
             // check ammo count
-            var ammoLeft = _playerData[attacker].GetAmmoCount(shootMode);
+            var ammoLeft = GetPlayerAmmoCount(attacker, shootMode);
             if (ammoLeft <= 0) return false;
 
             // check target board, then update
-            var targetBoard = _playerData[target].PlayerBoard;
+            var targetBoard = GetPlayerBoard(target);
+            var grid = targetBoard.GridShip;
+            if (!grid.ContainsPosition(position)) return false;
+
             var shipOnPosition = targetBoard.GetShipOnBoard(position);
             if (shipOnPosition?.Positions[position] != PegType.NONE) return false;
             var positionShot = targetBoard.IncomingAttack(position, shootMode);
             
             // update attacker board and data
-            var attackerBoard = _playerData[attacker].PlayerBoard;
+            var attackerBoard = GetPlayerBoard(attacker);
             attackerBoard.PutPegOnBoard(positionShot);
-            _playerData[attacker].RemoveAmmo(shootMode, 1);
+            _playersData[attacker].RemoveAmmo(shootMode, 1);
 
             return true;
+    }
+    public void GivePlayersAdditionalAmmo(IShoot ammoType, int amount) {
+        foreach (var pd in _playersData.Values) {
+            pd.GiveAmmo(ammoType, amount);
+        }
     }
 
 
@@ -155,10 +165,19 @@ public class GameController
     /**
         UTILITY METHODS TO GET GAME INFO
     */
+    public List<IPlayer> GetPlayers() {
+        return _playersData.Keys.ToList();
+    }
+    public IPlayer GetCurrentActivePlayer() {
+        return _activePlayer.Peek();
+    }
+    public IPlayer[] GetPlayerTurn() {
+        return _activePlayer.ToArray();
+    }
     public IBoard GetPlayerBoard(IPlayer player) {
-        if (!_playerData.ContainsKey(player)) throw new Exception("No such player!");
+        if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
-        return _playerData[player].PlayerBoard;
+        return _playersData[player].PlayerBoard;
     }
     public IGrid<IShip> GetPlayerGridShip(IPlayer player) {
         var board = GetPlayerBoard(player);
@@ -168,16 +187,19 @@ public class GameController
         var board = GetPlayerBoard(player);
         return board.GridPeg;
     }
-    public Dictionary<IShip, bool> GetPlayerShipsAll(IPlayer player) {
-        if (!_playerData.ContainsKey(player)) throw new Exception("No such player!");
+    public Dictionary<IShip, bool> GetPlayerShipsStatus(IPlayer player) {
+        if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
-        return _playerData[player].PlayerBoard.ShipsOnBoard;
+        return _playersData[player].PlayerBoard.ShipsOnBoard;
+    }
+    public List<IShip> GetPlayerShipsAll(IPlayer player) {
+        return GetPlayerShipsStatus(player).Keys.ToList();
     }
     public List<IShip> GetPlayerShipsLive(IPlayer player) {
-        if (!_playerData.ContainsKey(player)) throw new Exception("No such player!");
+        if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         List<IShip> liveShips = new();
-        var ships = _playerData[player].PlayerBoard.ShipsOnBoard;
+        var ships = _playersData[player].PlayerBoard.ShipsOnBoard;
         foreach (var ship in ships) {
             if (ship.Value) {
                 liveShips.Add(ship.Key);
@@ -186,10 +208,10 @@ public class GameController
         return liveShips;
     }
     public List<IShip> GetPlayerShipsSunk(IPlayer player) {
-        if (!_playerData.ContainsKey(player)) throw new Exception("No such player!");
+        if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         List<IShip> sunkShips = new();
-        var ships = _playerData[player].PlayerBoard.ShipsOnBoard;
+        var ships = _playersData[player].PlayerBoard.ShipsOnBoard;
         foreach (var ship in ships) {
             if (!ship.Value) {
                 sunkShips.Add(ship.Key);
@@ -198,13 +220,12 @@ public class GameController
         return sunkShips;
     }
     public Dictionary<IShoot, int> GetPlayerAmmoStock(IPlayer player) {
-        if (!_playerData.ContainsKey(player)) throw new Exception("No such player!");
+        if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
-        return _playerData[player].Ammo;
+        return _playersData[player].Ammo;
     }
-    public void GivePlayersAdditionalAmmo(IShoot ammoType, int amount) {
-        foreach (var pd in _playerData.Values) {
-            pd.GiveAmmo(ammoType, amount);
-        }
+    public int GetPlayerAmmoCount(IPlayer player, IShoot ammoType) {
+        var ammo = GetPlayerAmmoStock(player);
+        return ammo[ammoType];
     }
 }

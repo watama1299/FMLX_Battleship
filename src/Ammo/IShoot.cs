@@ -1,4 +1,4 @@
-namespace Battleship;
+namespace Battleship.Ammo;
 
 public interface IShoot
 {
