@@ -1,4 +1,5 @@
 using Battleship.Utils;
+using Battleship.Utils.Enums;
 namespace Battleship.GameBoard;
 
 public class Grid<T> : IGrid<T>
@@ -47,7 +48,7 @@ public class Grid<T> : IGrid<T>
     }
     public bool IsPositionEmpty(Position position) {
         if (!ContainsPosition(position)) return false;
-        if (Items[position.X, position.Y] is null) return true;
+        if (Items[position.X, position.Y] is null || Equals(Items[position.X, position.Y], PegType.NONE)) return true;
         return false;
     }
     public bool IsPositionEmpty(List<Position> positions) {

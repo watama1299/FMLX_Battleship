@@ -28,6 +28,12 @@ public class MissileNuclear : IAmmo
         return output;
     }
 
+    // override object.ToString
+    public override string ToString()
+    {
+        return "Nuclear Missile";
+    }
+
     // override object.Equals
     public override bool Equals(object? obj) {        
         if (obj == null || GetType() != obj.GetType())

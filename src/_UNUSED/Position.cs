@@ -1,4 +1,4 @@
-using Battleship.Enums;
+using Battleship.Utils.Enums;
 
 namespace Battleship.UNUSED;
 

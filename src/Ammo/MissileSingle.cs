@@ -7,6 +7,12 @@ public class MissileSingle : IAmmo
         return new List<Position> {origin}; 
     }
 
+    // override object.ToString
+    public override string ToString()
+    {
+        return "Single Missile";
+    }
+
     // override object.Equals
     public override bool Equals(object? obj) {        
         if (obj == null || GetType() != obj.GetType())

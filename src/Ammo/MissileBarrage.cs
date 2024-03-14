@@ -18,6 +18,12 @@ public class MissileBarrage : IAmmo
         return output;
     }
 
+    // override object.ToString
+    public override string ToString()
+    {
+        return "Missile Barrage";
+    }
+
     // override object.Equals
     public override bool Equals(object? obj) {        
         if (obj == null || GetType() != obj.GetType())

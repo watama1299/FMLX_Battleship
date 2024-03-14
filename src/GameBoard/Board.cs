@@ -2,6 +2,7 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 using Battleship.Ships;
 using Battleship.Ammo;
+using System.Net;
 
 namespace Battleship.GameBoard;
 
@@ -107,9 +108,8 @@ public class Board : IBoard
         return output;
     }
     private void PutPegOnBoard(Position position, PegType peg) {
-        if (GridPeg.IsPositionEmpty(position)) {
-            GridPeg.PlaceItemOnGrid(position, peg);
-        }
+        var currentPeg = GridPeg.Items[position.X, position.Y];
+        if (currentPeg == PegType.NONE) GridPeg.PlaceItemOnGrid(position, peg);
     }
     public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions) {
         foreach (var kv in pegPositions) {

@@ -17,11 +17,11 @@ public class ShipSubmarine : Ship, IShip
     }
 
     public new Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE) {
-        return base.AssignPositions(generatedPositons, peg);
+        return base.AssignPositions(generatedPositons, Positions, peg);
     }
 
     public new List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
-        return base.GeneratePositions(startCoords, orientation);
+        return base.GeneratePositions(startCoords, orientation, ShipLength);
     }
 
     public new bool SinkShip() {
@@ -29,6 +29,12 @@ public class ShipSubmarine : Ship, IShip
     }
 
 
+
+    // override object.ToString
+    public override string ToString()
+    {
+        return "Submarine";
+    }
 
     // override object.Equals
     public override bool Equals(object? obj) {        

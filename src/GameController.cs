@@ -25,6 +25,11 @@ public class GameController
         Dictionary<IAmmo, int>? additionalAmmoType = null
         ) {
             _templateBoard = board;
+            var boardRows = board.GridShip.Items.GetLength(0);
+            var boardCols = board.GridShip.Items.GetLength(1);
+            var boardP1 = new Board(boardRows, boardCols);
+            var boardP2 = new Board(boardRows, boardCols);
+
             _templateShips = ships;
 
             if (additionalAmmoType?.Count > 0) {
@@ -32,12 +37,18 @@ public class GameController
             } else {
                 _templateAmmo = new();
             }
+            var ammoP1 = new Dictionary<IAmmo, int>();
+            var ammoP2 = new Dictionary<IAmmo, int>();
+            foreach (var ammo in _templateAmmo) {
+                ammoP1.Add(ammo.Key, ammo.Value);
+                ammoP2.Add(ammo.Key, ammo.Value);
+            }
 
             try {
-                var dataP1 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
+                var dataP1 = new PlayerBattleshipData(boardP1, ammoP1);
                 _playersData.Add(p1, dataP1);
 
-                var dataP2 = new PlayerBattleshipData(_templateBoard, _templateAmmo);
+                var dataP2 = new PlayerBattleshipData(boardP2, ammoP2);
                 _playersData.Add(p2, dataP2);
             } catch (Exception) {
                 throw;
@@ -99,9 +110,12 @@ public class GameController
     public GameStatus ResetGame() {
         if (Status != GameStatus.ENDED) return Status;
 
+        var boardRows = _templateBoard.GridShip.Items.GetLength(0);
+        var boardCols = _templateBoard.GridShip.Items.GetLength(1);
+
         var tempData = new Dictionary<IPlayer, PlayerBattleshipData>(2);
         foreach (var player in _playersData.Keys) {
-            tempData.Add(player, new PlayerBattleshipData(_templateBoard, _templateAmmo));
+            tempData.Add(player, new PlayerBattleshipData(new Board(boardRows, boardCols), _templateAmmo));
         }
         _playersData = tempData;
         Status = GameStatus.INIT;
@@ -151,7 +165,10 @@ public class GameController
             if (!grid.ContainsPosition(position)) return false;
 
             var shipOnPosition = targetBoard.GetShipOnBoard(position);
-            if (shipOnPosition?.Positions[position] != PegType.NONE) return false;
+            if (shipOnPosition is null) ;
+            else if (
+                shipOnPosition.Positions[position] == PegType.MISS
+                || shipOnPosition.Positions[position] == PegType.HIT) return false;
             var positionShot = targetBoard.IncomingAttack(position, shootMode);
             
             // update attacker board and data
@@ -180,6 +197,11 @@ public class GameController
     }
     public IPlayer[] GetPlayerTurn() {
         return _activePlayer.ToArray();
+    }
+    public PlayerBattleshipData GetPlayerData(IPlayer player) {
+        if (!_playersData.ContainsKey(player)) throw new Exception("Player doesn't exist!");
+        
+        return _playersData[player];
     }
     public IBoard GetPlayerBoard(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");

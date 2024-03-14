@@ -12,6 +12,8 @@ public interface IBoard
     public Dictionary<IShip, bool> ShipsOnBoard {get;}
     public IGrid<PegType> GridPeg {get;}
 
+
+
     public bool PutShipOnBoard(
         IShip playerShip,
         Position position,
@@ -21,6 +23,9 @@ public interface IBoard
     public IShip? GetShipOnBoard(Position position);
     public bool CheckShipGridPosition(Position position);
     public bool CheckShipGridPosition(List<Position> positions);
+
+
+    
     public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType);
     public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions);
 }

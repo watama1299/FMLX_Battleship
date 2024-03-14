@@ -9,4 +9,22 @@ public struct Position
         X = x;
         Y = y;
     }
+
+    // override object.Equals
+    public override bool Equals(object obj)
+    {        
+        if (obj == null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+        
+        return X == ((Position) obj).X
+            && Y == ((Position) obj).Y;
+    }
+    
+    // override object.GetHashCode
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
+    }
 }

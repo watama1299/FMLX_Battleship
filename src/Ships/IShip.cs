@@ -13,4 +13,6 @@ public interface IShip
 
     public List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation);
     public bool SinkShip();
+
+    public string ToString();
 }
