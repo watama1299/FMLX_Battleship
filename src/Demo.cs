@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Battleship;
+﻿using Battleship;
 using Battleship.Ammo;
 using Battleship.GameBoard;
 using Battleship.Players;
@@ -13,9 +12,7 @@ namespace GameDemo;
 class Demo {
     static void Main(string[] args) {
         Console.Write("Enter name for Player 1 > ");
-        Player p1 = new Player("a");
-
-
+        Player p1 = new Player("Yanto");
 
         Player p2 = new Player("Aditya");
         Console.WriteLine($"You're playing against > {p2.Name}");
@@ -66,16 +63,52 @@ class Demo {
         PrintPlayerInfo(gc, p1);
         // Console.ReadLine();
 
-        gc.PlayerShoot(p1, p2, new Position(0, 0), new MissileSingle());
-        gc.PlayerShoot(p1, p2, new Position(1, 1), new MissileSingle());
-        gc.PlayerShoot(p1, p2, new Position(2, 2), new MissileSingle());
-        gc.PlayerShoot(p1, p2, new Position(3, 3), new MissileSingle());
+        // for (int i = 0; i < gc.GetPlayerBoard(p1).GridShip.TotalGrid; i++) {
+        //     gc.PlayerShoot(p1, p2, new Position(i/10, i%5), new MissileSingle());
+        // }
         PrintPlayerInfo(gc, p1);
         PrintPlayerInfo(gc, p2);
-        gc.PlayerShoot(p1, p2, new Position(4, 4), new MissileNuclear());
-        PrintPlayerInfo(gc, p1);
-        PrintPlayerInfo(gc, p2);
-        Console.ReadLine();
+
+
+        GameStatus gameStatus = gc.StartGame();
+        var r = new Random();
+        var c = new Random();
+        while (gameStatus != GameStatus.INIT) {
+            var activePlayer = gc.GetCurrentActivePlayer();
+            Console.WriteLine($"{activePlayer.Name} is playing...");
+            var nonActivePlayer = gc.PreviewNextPlayer();
+
+            bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(r.Next(10), c.Next(10)), new MissileSingle());
+            while (successfulShot) {
+                successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(r.Next(10), c.Next(10)), new MissileSingle());
+            }
+            Thread.Sleep(r.Next(10));
+            gameStatus = gc.NextPlayer();
+            Console.WriteLine(gameStatus);
+
+            if (gameStatus == GameStatus.ENDED) {
+                PrintPlayerInfo(gc, p1);
+                PrintPlayerInfo(gc, p2);
+                Console.WriteLine($"{nonActivePlayer.Name} wins!");
+
+                Console.Write("Would you like to play again? (y/n) > ");
+                if (Console.ReadLine() == "y") {
+                    Console.WriteLine("Resetting game...");
+                    gameStatus = gc.ResetGame();
+                    Console.Clear();
+                    PlacingShipsRandom(gc, p1, ships);
+                    PlacingShipsRandom(gc, p2, ships);
+
+                    PrintPlayerInfo(gc, p1);
+                    PrintPlayerInfo(gc, p2);
+
+                    Console.WriteLine("Starting game again...");
+                    gameStatus = gc.StartGame();
+                } else {
+                    Environment.Exit(0);
+                }
+            }
+        }
     }
 
     static Grid PrintGrid<T>(IGrid<T> gridItem) {
@@ -111,20 +144,19 @@ class Demo {
                                     temp[j] = "[[  ]]";
                                 }
                             else {
-                                // var pos = new Position(i-1, j-1);
-                                // var poss = ((IShip) item).Positions;
-                                // foreach (var p in ((IShip) item).Positions) {
-                                //     Console.WriteLine(pos.Equals(p));
-                                // }
-
-                                // var peg = ((IShip) item).Positions[pos];
+                                var pos = new Position(i-1, j-1);
+                                var peg = ((IShip) item).GetPegOnPosition(pos);
                                 char[] chars = item.ToString()
                                                     .ToLower()
                                                     .ToCharArray();
                                 string ch = chars.ElementAt(0).ToString() + chars.ElementAt(1).ToString();
-                                if (ch == "bl") temp[j] = $"[yellow][[OO]][/]";
-                                // if (peg == PegType.HIT) temp[j] = $"[red][[{ch}]][/]";
-                                else temp[j] = $"[green][[{ch}]][/]";
+                                if (ch == "bl") {
+                                    temp[j] = $"[[OO]]";
+                                }
+                                else {
+                                    if (peg == PegType.HIT) temp[j] = $"[red][[{ch}]][/]";
+                                    else temp[j] = $"[green][[{ch}]][/]";
+                                }
                             }
                         } 
                         
@@ -252,7 +284,4 @@ class Demo {
             }
         }
     }
-    static void PlayerAttack(GameController gc, IPlayer attacker) {}
-
-
 }

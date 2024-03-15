@@ -2,7 +2,7 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
-public class ShipBattleship : Ship
+public class ShipBattleship : Ship, IShip
 {
     public new int ShipLength {get; private set;} = 4;
 

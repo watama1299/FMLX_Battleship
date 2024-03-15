@@ -4,9 +4,9 @@ namespace Battleship.Ships;
 
 public abstract class Ship : IShip
 {
-    public int ShipLength {get; private set;}
-    public Dictionary<Position, PegType> Positions {get; private set;}
-    public bool IsAlive {get; private set;}
+    public virtual int ShipLength {get; private set;}
+    public virtual Dictionary<Position, PegType> Positions {get; private set;}
+    public virtual bool IsAlive {get; private set;} = true;
 
 
 
@@ -49,12 +49,31 @@ public abstract class Ship : IShip
     }
     
     public bool SinkShip() {
-        if (IsAlive & !Positions.Values.ToList().Contains(PegType.NONE) ) {
-            IsAlive = false;
+        if (IsAlive) {
+            int count = 0;
+            foreach (var kv in Positions) {
+                if (kv.Value == PegType.HIT) count++;
+            }
+            if (count == Positions.Count) IsAlive = false;
         }
-
         return IsAlive;
     }
 
     public abstract IShip Clone();
+
+    public virtual PegType GetPegOnPosition(Position pos) {
+        var output = new PegType();
+        foreach (var kv in Positions) {
+            if (kv.Key.Equals(pos)) output = kv.Value;
+        }
+        return output;
+    }
+    public virtual bool SetPegOnPosition(Position pos, PegType peg) {
+        bool output = false;
+        foreach (var kv in Positions) {
+            if (kv.Key.Equals(pos)) Positions[kv.Key] = peg;
+            output = true;
+        }
+        return output;
+    }
 }

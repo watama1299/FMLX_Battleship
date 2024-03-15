@@ -39,7 +39,7 @@ public struct Position
 
     public readonly bool Equals(Position p) => X == p.X && Y == p.Y;
 
-    public override int GetHashCode() => (X, Y).GetHashCode();
+    public override int GetHashCode() =>  X ^ Y;
 
     public static bool operator ==(Position lhs, Position rhs) => lhs.Equals(rhs);
 

@@ -4,9 +4,9 @@ namespace Battleship.Ships;
 
 public interface IShip
 {
-    public int ShipLength {get;}
-    public Dictionary<Position, PegType> Positions {get;}
-    public bool IsAlive {get;}
+    public abstract int ShipLength {get;}
+    public abstract Dictionary<Position, PegType> Positions {get;}
+    public abstract bool IsAlive {get;}
 
     public Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation);
     public Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE);
@@ -16,4 +16,6 @@ public interface IShip
 
     public string ToString();
     public IShip Clone();
+    public PegType GetPegOnPosition(Position pos);
+    public bool SetPegOnPosition(Position pos, PegType peg);
 }

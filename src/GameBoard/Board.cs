@@ -88,7 +88,7 @@ public class Board : IBoard
 
             // first check if pos has been hit bfore
             var shipCheck = GridShip.Items[pos.X, pos.Y];
-            var peg = shipCheck.Positions[pos];
+            var peg = shipCheck.GetPegOnPosition(pos);
             if (peg != PegType.NONE) {
                 continue;
             }
@@ -97,11 +97,11 @@ public class Board : IBoard
             output.Add(pos, PegType.HIT);
 
             // update info of ship that was hit
-            IShip attackedShip = GridShip.Items[pos.X, pos.Y];
-            attackedShip.Positions[pos] = PegType.HIT;
+            IShip attackedShip = GetShipOnBoard(pos);
+            attackedShip.SetPegOnPosition(pos, PegType.HIT);
             if (!attackedShip.Positions.ContainsValue(PegType.NONE)) {
                 bool sunk = attackedShip.SinkShip();
-                ShipsOnBoard[attackedShip] = sunk;
+                SetShipStatus(shipCheck, sunk);
             }
         }
 
@@ -114,6 +114,12 @@ public class Board : IBoard
     public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions) {
         foreach (var kv in pegPositions) {
             PutPegOnBoard(kv.Key, kv.Value);
+        }
+    }
+
+    private void SetShipStatus(IShip ship, bool isAlive) {
+        foreach (var kv in ShipsOnBoard) {
+            if (ship.Equals(kv.Key)) ShipsOnBoard[kv.Key] = isAlive;
         }
     }
 }

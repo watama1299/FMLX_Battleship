@@ -118,6 +118,7 @@ public class GameController
             tempData.Add(player, new PlayerBattleshipData(new Board(boardRows, boardCols), _templateAmmo));
         }
         _playersData = tempData;
+        _activePlayer = new(2);
         Status = GameStatus.INIT;
         return Status;
     }
@@ -174,8 +175,8 @@ public class GameController
 
             var shipOnPosition = targetBoard.GetShipOnBoard(position);
             if (shipOnPosition is not null) {
-                if (shipOnPosition.Positions[position] == PegType.MISS
-                    || shipOnPosition.Positions[position] == PegType.HIT) return false;
+                if (shipOnPosition.GetPegOnPosition(position) == PegType.MISS
+                    || shipOnPosition.GetPegOnPosition(position) == PegType.HIT) return false;
             }
             var positionShot = targetBoard.IncomingAttack(position, shootMode);
             
@@ -202,6 +203,13 @@ public class GameController
     }
     public IPlayer GetCurrentActivePlayer() {
         return _activePlayer.Peek();
+    }
+    public IPlayer PreviewNextPlayer() {
+        var currentPlayer = GetCurrentActivePlayer();
+        foreach (var p in GetPlayers()) {
+            if (!p.Equals(currentPlayer)) return p;
+        }
+        return null;
     }
     public IPlayer[] GetPlayerTurn() {
         return _activePlayer.ToArray();
