@@ -3,7 +3,7 @@ namespace Battleship.Ammo;
 
 public class MissileNuclear : IAmmo
 {
-    public List<Position> Shoot(Position origin) {
+    public IEnumerable<Position> Shoot(Position origin) {
         var output = new List<Position>();
         output.Add(origin);
 
@@ -27,6 +27,8 @@ public class MissileNuclear : IAmmo
 
         return output;
     }
+
+
 
     // override object.ToString
     public override string ToString()

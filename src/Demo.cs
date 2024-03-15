@@ -55,11 +55,11 @@ class Demo {
         
 
         Console.WriteLine("Place your ships...");
-        // Console.Write("Do you want to randomise your ships? (y/n) > ");
-        // var ans = Console.ReadLine();
-        // if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
-        // else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
-        PlacingShipsRandom(gc, p1, ships);
+        Console.Write("Do you want to randomise your ships? (y/n) > ");
+        var ans = Console.ReadLine();
+        if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
+        else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
+        // PlacingShipsRandom(gc, p1, ships);
         PrintPlayerInfo(gc, p1);
         // Console.ReadLine();
 
@@ -78,13 +78,19 @@ class Demo {
             Console.WriteLine($"{activePlayer.Name} is playing...");
             var nonActivePlayer = gc.PreviewNextPlayer();
 
-            bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(r.Next(10), c.Next(10)), new MissileSingle());
+            var posX = r.Next(10);
+            var posY = c.Next(10);
+            Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
+            bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
             while (successfulShot) {
-                successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(r.Next(10), c.Next(10)), new MissileSingle());
+                posX = r.Next(10);
+                posY = c.Next(10);
+                Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
+                successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
             }
             Thread.Sleep(r.Next(10));
             gameStatus = gc.NextPlayer();
-            Console.WriteLine(gameStatus);
+            // Console.WriteLine(gameStatus);
 
             if (gameStatus == GameStatus.ENDED) {
                 PrintPlayerInfo(gc, p1);
@@ -93,10 +99,16 @@ class Demo {
 
                 Console.Write("Would you like to play again? (y/n) > ");
                 if (Console.ReadLine() == "y") {
+                    Console.Clear();
                     Console.WriteLine("Resetting game...");
                     gameStatus = gc.ResetGame();
-                    Console.Clear();
-                    PlacingShipsRandom(gc, p1, ships);
+
+                    Console.WriteLine("Place your ships...");
+                    Console.Write("Do you want to randomise your ships? (y/n) > ");
+                    ans = Console.ReadLine();
+                    if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
+                    else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
+                    // PlacingShipsRandom(gc, p1, ships);
                     PlacingShipsRandom(gc, p2, ships);
 
                     PrintPlayerInfo(gc, p1);
@@ -228,6 +240,7 @@ class Demo {
         // gcShips.CopyTo(ships, 0);
 
         Console.WriteLine("Place your ships...");
+        PrintPlayerInfo(gc, player);
         foreach (var ship in ships) {
             Console.Write($"Place your {ship.ToString()} at location (eg. A 1) > ");
             var pos = Console.ReadLine();

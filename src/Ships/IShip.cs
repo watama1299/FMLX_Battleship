@@ -8,14 +8,17 @@ public interface IShip
     public abstract Dictionary<Position, PegType> Positions {get;}
     public abstract bool IsAlive {get;}
 
-    public Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation);
-    public Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE);
 
-    public List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation);
+
+    public IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation);
+    public IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation);
+    public IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositons, PegType peg = PegType.NONE);
+    public PegType GetPegOnPosition(Position pos);
+    public bool SetPegOnPosition(Position pos, PegType peg);
     public bool SinkShip();
+
+
 
     public string ToString();
     public IShip Clone();
-    public PegType GetPegOnPosition(Position pos);
-    public bool SetPegOnPosition(Position pos, PegType peg);
 }

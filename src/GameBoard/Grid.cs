@@ -25,7 +25,8 @@ public class Grid<T> : IGrid<T>
         Items[position.X, position.Y] = item;
         return true;
     }
-    public bool PlaceItemOnGrid(Dictionary<Position, T> itemAndPositions) {
+
+    public bool PlaceItemOnGrid(IDictionary<Position, T> itemAndPositions) {
         foreach (var posKey in itemAndPositions.Keys) {
             if (!IsPositionEmpty(posKey)) return false;
         }
@@ -36,8 +37,6 @@ public class Grid<T> : IGrid<T>
         return true;
     }
 
-
-
     public bool ContainsPosition(Position position) {
         try {
             var item = Items[position.X, position.Y];
@@ -46,12 +45,16 @@ public class Grid<T> : IGrid<T>
         }
         return true;
     }
+
     public bool IsPositionEmpty(Position position) {
         if (!ContainsPosition(position)) return false;
-        if (Items[position.X, position.Y] is null || Equals(Items[position.X, position.Y], PegType.NONE)) return true;
+        if (Items[position.X, position.Y] is null
+            || Equals(Items[position.X, position.Y], PegType.NONE)) 
+            return true;
         return false;
     }
-    public bool IsPositionEmpty(List<Position> positions) {
+
+    public bool IsPositionEmpty(IEnumerable<Position> positions) {
         foreach (var pos in positions) {
             if (!IsPositionEmpty(pos)) return false;
         }

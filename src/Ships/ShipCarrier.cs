@@ -12,25 +12,25 @@ public class ShipCarrier : Ship, IShip
 
 
 
-    private ShipCarrier(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+    private ShipCarrier(int length, IDictionary<Position, PegType> pos, bool isAlive) {
         ShipLength = length;
-        Positions = pos;
+        Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
     public ShipCarrier() {}
 
 
 
-    public new Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
+
+    public new IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
+        return base.GeneratePositions(startCoords, orientation, ShipLength);
+    }
+    public new IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         return base.AssignPositions(startCoords, orientation);
     }
 
-    public new Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE) {
+    public new IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositons, PegType peg = PegType.NONE) {
         return base.AssignPositions(generatedPositons, Positions, peg);
-    }
-
-    public new List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
-        return base.GeneratePositions(startCoords, orientation, ShipLength);
     }
 
     public new bool SinkShip() {
@@ -38,10 +38,16 @@ public class ShipCarrier : Ship, IShip
     }
 
 
+
     // override object.ToString
     public override string ToString()
     {
         return "Carrier";
+    }
+
+    public override IShip Clone()
+    {
+        return new ShipCarrier(ShipLength, Positions, IsAlive);
     }
 
     // override object.Equals
@@ -64,10 +70,5 @@ public class ShipCarrier : Ship, IShip
             Positions,
             IsAlive
         );
-    }
-
-    public override IShip Clone()
-    {
-        return new ShipCarrier(ShipLength, Positions, IsAlive);
     }
 }

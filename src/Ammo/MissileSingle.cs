@@ -3,9 +3,11 @@ namespace Battleship.Ammo;
 
 public class MissileSingle : IAmmo
 {
-    public List<Position> Shoot(Position origin) {
+    public IEnumerable<Position> Shoot(Position origin) {
         return new List<Position> {origin}; 
     }
+
+
 
     // override object.ToString
     public override string ToString()

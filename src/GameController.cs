@@ -21,8 +21,8 @@ public class GameController
         IPlayer p1,
         IPlayer p2,
         IBoard board,
-        List<IShip> ships, //IEnumerable
-        Dictionary<IAmmo, int>? additionalAmmoType = null //IDictionary
+        IEnumerable<IShip> ships,
+        IDictionary<IAmmo, int>? additionalAmmoType = null
         ) {
             _templateBoard = board;
             var boardRows = board.GridShip.Items.GetLength(0);
@@ -30,10 +30,10 @@ public class GameController
             var boardP1 = new Board(boardRows, boardCols);
             var boardP2 = new Board(boardRows, boardCols);
 
-            _templateShips = ships;
+            _templateShips = new(ships);
 
             if (additionalAmmoType?.Count > 0) {
-                _templateAmmo = additionalAmmoType;
+                _templateAmmo = new(additionalAmmoType);
             } else {
                 _templateAmmo = new();
             }
@@ -67,7 +67,7 @@ public class GameController
         
         List<IPlayer> players = _playersData.Keys.ToList();
         foreach (var player in players) {
-            var playerShips = GetPlayerShipsAll(player);
+            var playerShips = new List<IShip>(GetPlayerShipsAll(player));
             if (playerShips is null || playerShips.Count == 0) {
                 throw new Exception("Player has no ships!");
             }
@@ -96,7 +96,7 @@ public class GameController
 
         // get next player
         var nextPlayer = _activePlayer.Dequeue();
-        var playerShips = GetPlayerShipsStatus(nextPlayer);
+        var playerShips = new Dictionary<IShip, bool>(GetPlayerShipsStatus(nextPlayer));
 
         // check if next player still has live ships
         if (playerShips.ContainsValue(true)) {
@@ -123,11 +123,11 @@ public class GameController
         return Status;
     }
     // change List to IEnumerable
-    public GameStatus ResetGame(IBoard newBoard, List<IShip> newShips) {
+    public GameStatus ResetGame(IBoard newBoard, IEnumerable<IShip> newShips) {
         if (Status != GameStatus.ENDED) return Status;
 
         _templateBoard = newBoard;
-        _templateShips = newShips; //newShips.ToList()
+        _templateShips = (List<IShip>) newShips; //newShips.ToList()
         return ResetGame();
     }
 
@@ -232,15 +232,15 @@ public class GameController
         var board = GetPlayerBoard(player);
         return board.GridPeg;
     }
-    public Dictionary<IShip, bool> GetPlayerShipsStatus(IPlayer player) {
+    public IDictionary<IShip, bool> GetPlayerShipsStatus(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         return _playersData[player].PlayerBoard.ShipsOnBoard;
     }
-    public List<IShip> GetPlayerShipsAll(IPlayer player) {
+    public IEnumerable<IShip> GetPlayerShipsAll(IPlayer player) {
         return GetPlayerShipsStatus(player).Keys.ToList();
     }
-    public List<IShip> GetPlayerShipsLive(IPlayer player) {
+    public IEnumerable<IShip> GetPlayerShipsLive(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         List<IShip> liveShips = new();
@@ -252,7 +252,7 @@ public class GameController
         }
         return liveShips;
     }
-    public List<IShip> GetPlayerShipsSunk(IPlayer player) {
+    public IEnumerable<IShip> GetPlayerShipsSunk(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         List<IShip> sunkShips = new();
@@ -264,7 +264,7 @@ public class GameController
         }
         return sunkShips;
     }
-    public Dictionary<IAmmo, int> GetPlayerAmmoStock(IPlayer player) {
+    public IDictionary<IAmmo, int> GetPlayerAmmoStock(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         return _playersData[player].Ammo;

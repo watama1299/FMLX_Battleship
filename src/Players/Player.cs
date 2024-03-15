@@ -6,10 +6,14 @@ public class Player : IPlayer
     public int Id {get; private set;}
     public string Name {get; private set;}
 
+
+
     public Player(string name) {
         Id = new Random().Next();
         Name = name;
     }
+
+
 
     // override object.Equals
     public override bool Equals(object? obj) {        

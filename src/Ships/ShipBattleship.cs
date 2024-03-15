@@ -12,25 +12,25 @@ public class ShipBattleship : Ship, IShip
 
 
 
-    private ShipBattleship(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+    private ShipBattleship(int length, IDictionary<Position, PegType> pos, bool isAlive) {
         ShipLength = length;
-        Positions = pos;
+        Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
     public ShipBattleship() {}
 
 
 
-    public new Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
+
+    public new IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
+        return base.GeneratePositions(startCoords, orientation, ShipLength);
+    }
+    public new IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         return base.AssignPositions(startCoords, orientation);
     }
 
-    public new Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositons, PegType peg = PegType.NONE) {
+    public new IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositons, PegType peg = PegType.NONE) {
         return base.AssignPositions(generatedPositons, Positions, peg);
-    }
-
-    public new List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
-        return base.GeneratePositions(startCoords, orientation, ShipLength);
     }
 
     public new bool SinkShip() {
@@ -43,6 +43,11 @@ public class ShipBattleship : Ship, IShip
     public override string ToString()
     {
         return "Battleship";
+    }
+
+    public override IShip Clone()
+    {
+        return new ShipBattleship(ShipLength, Positions, IsAlive);
     }
 
     // override object.Equals
@@ -65,11 +70,6 @@ public class ShipBattleship : Ship, IShip
             Positions,
             IsAlive
         );
-    }
-
-    public override IShip Clone()
-    {
-        return new ShipBattleship(ShipLength, Positions, IsAlive);
     }
 
 }

@@ -13,7 +13,7 @@ public class PlayerBattleshipData
             PlayerBoard = playerBoard;
             Ammo.Add(new MissileSingle(), PlayerBoard.GridPeg.TotalGrid);
     }
-    public PlayerBattleshipData(IBoard playerBoard, Dictionary<IAmmo, int> additionalAmmo) : this(playerBoard) {
+    public PlayerBattleshipData(IBoard playerBoard, IDictionary<IAmmo, int> additionalAmmo) : this(playerBoard) {
             foreach (var ammo in additionalAmmo) {
                 if (ammo.Value < 0) {
                     throw new Exception($"Amount of ammo {ammo.Key} cannot be lesser than 0!");
@@ -23,12 +23,14 @@ public class PlayerBattleshipData
     }
 
 
+
     public int GetAmmoCount(IAmmo ammoType) {
         if (!Ammo.ContainsKey(ammoType)) {
             return -1;
         }
         return Ammo[ammoType];
     }
+
     public bool GiveAmmo(IAmmo ammoType, int amount) {
         if (amount <= 0) return false;
 
@@ -39,6 +41,7 @@ public class PlayerBattleshipData
         Ammo.Add(ammoType, amount);
         return true;
     }
+
     public bool RemoveAmmo(IAmmo ammoType, int amount) {
         if (amount <= 0) return false;
         

@@ -26,11 +26,7 @@ public class Board : IBoard
 
 
 
-    public bool PutShipOnBoard(
-        IShip playerShip,
-        Position position,
-        ShipOrientation orientation
-        ) {
+    public bool PutShipOnBoard(IShip playerShip, Position position, ShipOrientation orientation) {
             var potentialPositions = playerShip.GeneratePositions(position, orientation);
 
             // First check whether positions are valid
@@ -60,16 +56,16 @@ public class Board : IBoard
     public bool CheckShipGridPosition(Position position) {
         return GridShip.IsPositionEmpty(position);
     }
-    public bool CheckShipGridPosition(List<Position> positions) {
-        return GridShip.IsPositionEmpty(positions);
+    public bool CheckShipGridPosition(IEnumerable<Position> positions) {
+        return GridShip.IsPositionEmpty((List<Position>) positions);
     }
 
 
 
-    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType) {
+    public IDictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType) {
         Dictionary<Position, PegType> output = new();
         
-        List<Position> positionsShot = shotType.Shoot(originPosition);
+        var positionsShot = shotType.Shoot(originPosition);
         
         foreach (var pos in positionsShot) {
             if (!GridShip.ContainsPosition(pos)) continue;
@@ -107,19 +103,21 @@ public class Board : IBoard
 
         return output;
     }
+    
+    private void SetShipStatus(IShip ship, bool isAlive) {
+        foreach (var kv in ShipsOnBoard) {
+            if (ship.Equals(kv.Key)) ShipsOnBoard[kv.Key] = isAlive;
+        }
+    }
+
     private void PutPegOnBoard(Position position, PegType peg) {
         var currentPeg = GridPeg.Items[position.X, position.Y];
         if (currentPeg == PegType.NONE) GridPeg.PlaceItemOnGrid(position, peg);
     }
-    public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions) {
+
+    public void PutPegOnBoard(IDictionary<Position, PegType> pegPositions) {
         foreach (var kv in pegPositions) {
             PutPegOnBoard(kv.Key, kv.Value);
-        }
-    }
-
-    private void SetShipStatus(IShip ship, bool isAlive) {
-        foreach (var kv in ShipsOnBoard) {
-            if (ship.Equals(kv.Key)) ShipsOnBoard[kv.Key] = isAlive;
         }
     }
 }

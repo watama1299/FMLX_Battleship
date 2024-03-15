@@ -14,18 +14,14 @@ public interface IBoard
 
 
 
-    public bool PutShipOnBoard(
-        IShip playerShip,
-        Position position,
-        ShipOrientation orientation
-        );
+    public bool PutShipOnBoard(IShip playerShip, Position position, ShipOrientation orientation);
 
     public IShip? GetShipOnBoard(Position position);
     public bool CheckShipGridPosition(Position position);
-    public bool CheckShipGridPosition(List<Position> positions);
+    public bool CheckShipGridPosition(IEnumerable<Position> positions);
 
 
     
-    public Dictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType);
-    public void PutPegOnBoard(Dictionary<Position, PegType> pegPositions);
+    public IDictionary<Position, PegType> IncomingAttack(Position originPosition, IAmmo shotType);
+    public void PutPegOnBoard(IDictionary<Position, PegType> pegPositions);
 }

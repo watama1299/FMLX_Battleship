@@ -10,26 +10,7 @@ public abstract class Ship : IShip
 
 
 
-    public Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
-        var tempPos = GeneratePositions(startCoords, orientation);
-        return AssignPositions(tempPos);
-    }
-
-    public Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositions, PegType peg = PegType.NONE) {
-        var temp = new Dictionary<Position, PegType>();
-        foreach (var pos in generatedPositions) {
-            temp.Add(pos, peg);
-        }
-        Positions = temp;
-        return Positions;
-    }
-
-    protected Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositions, Dictionary<Position, PegType> positions, PegType peg = PegType.NONE) {
-        Positions = positions;
-        return AssignPositions(generatedPositions, peg);
-    }
-
-    public List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
+    public IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
         var possiblePositions = new List<Position>();
         if (orientation == ShipOrientation.VERTICAL) {
             for (int i = 0; i < ShipLength; i++) {
@@ -43,9 +24,45 @@ public abstract class Ship : IShip
         return possiblePositions;
     }
 
-    protected List<Position> GeneratePositions(Position startCoords, ShipOrientation orientation, int length) {
+    protected IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation, int length) {
         ShipLength = length;
         return GeneratePositions(startCoords, orientation);
+    }
+
+    public IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
+        var tempPos = GeneratePositions(startCoords, orientation);
+        return AssignPositions(tempPos);
+    }
+
+    public IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, PegType peg = PegType.NONE) {
+        var temp = new Dictionary<Position, PegType>();
+        foreach (var pos in generatedPositions) {
+            temp.Add(pos, peg);
+        }
+        Positions = temp;
+        return Positions;
+    }
+
+    protected IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, IDictionary<Position, PegType> positions, PegType peg = PegType.NONE) {
+        Positions = (Dictionary<Position, PegType>) positions;
+        return AssignPositions(generatedPositions, peg);
+    }
+
+    public virtual PegType GetPegOnPosition(Position pos) {
+        var output = new PegType();
+        foreach (var kv in Positions) {
+            if (kv.Key.Equals(pos)) output = kv.Value;
+        }
+        return output;
+    }
+
+    public virtual bool SetPegOnPosition(Position pos, PegType peg) {
+        bool output = false;
+        foreach (var kv in Positions) {
+            if (kv.Key.Equals(pos)) Positions[kv.Key] = peg;
+            output = true;
+        }
+        return output;
     }
     
     public bool SinkShip() {
@@ -60,20 +77,4 @@ public abstract class Ship : IShip
     }
 
     public abstract IShip Clone();
-
-    public virtual PegType GetPegOnPosition(Position pos) {
-        var output = new PegType();
-        foreach (var kv in Positions) {
-            if (kv.Key.Equals(pos)) output = kv.Value;
-        }
-        return output;
-    }
-    public virtual bool SetPegOnPosition(Position pos, PegType peg) {
-        bool output = false;
-        foreach (var kv in Positions) {
-            if (kv.Key.Equals(pos)) Positions[kv.Key] = peg;
-            output = true;
-        }
-        return output;
-    }
 }
