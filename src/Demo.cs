@@ -1,4 +1,5 @@
-﻿using Battleship;
+﻿using System.Text.Json;
+using Battleship;
 using Battleship.Ammo;
 using Battleship.GameBoard;
 using Battleship.Players;
@@ -57,13 +58,13 @@ class Demo {
         
 
         Console.WriteLine("Place your ships...");
-        Console.Write("Do you want to randomise your ships? (y/n) > ");
+        // Console.Write("Do you want to randomise your ships? (y/n) > ");
         // var ans = Console.ReadLine();
         // if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
         // else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
         PlacingShipsRandom(gc, p1, ships);
         PrintPlayerInfo(gc, p1);
-        Console.ReadLine();
+        // Console.ReadLine();
 
         gc.PlayerShoot(p1, p2, new Position(0, 0), new MissileSingle());
         gc.PlayerShoot(p1, p2, new Position(1, 1), new MissileSingle());
@@ -105,17 +106,25 @@ class Demo {
                     else {
 
                         if (typeof(T) == typeof(IShip)) {
-                            if (gridItem.Items[i-1, j-1] is null) {
+                            var item = gridItem.Items[i-1, j-1];
+                            if (item is null) {
                                     temp[j] = "[[  ]]";
                                 }
                             else {
-                                char[] chars = gridItem.Items[i-1, j-1]
-                                                    .ToString()
+                                // var pos = new Position(i-1, j-1);
+                                // var poss = ((IShip) item).Positions;
+                                // foreach (var p in ((IShip) item).Positions) {
+                                //     Console.WriteLine(pos.Equals(p));
+                                // }
+
+                                // var peg = ((IShip) item).Positions[pos];
+                                char[] chars = item.ToString()
                                                     .ToLower()
                                                     .ToCharArray();
                                 string ch = chars.ElementAt(0).ToString() + chars.ElementAt(1).ToString();
-                                if (ch == "bl") temp[j] = $"[[OO]]";
-                                else temp[j] = $"[[{ch}]]";
+                                if (ch == "bl") temp[j] = $"[yellow][[OO]][/]";
+                                // if (peg == PegType.HIT) temp[j] = $"[red][[{ch}]][/]";
+                                else temp[j] = $"[green][[{ch}]][/]";
                             }
                         } 
                         
@@ -125,10 +134,10 @@ class Demo {
                                 temp[j] = "[[ ]]";
                             }
                             else if (Equals(gridItem.Items[i-1, j-1], PegType.MISS)) {
-                                temp[j] = "[[O]]";
+                                temp[j] = "[yellow][[O]][/]";
                             }
                             else if (Equals(gridItem.Items[i-1, j-1], PegType.HIT)){
-                                temp[j] = "[[X]]";
+                                temp[j] = "[red][[X]][/]";
                             }
                         }
                     }
@@ -218,7 +227,12 @@ class Demo {
         int boardRow = gc.GetPlayerBoard(player).GridShip.Items.GetLength(0);
         int boardCol = gc.GetPlayerBoard(player).GridShip.Items.GetLength(1);
 
-        var ships = gcShips.ToList();
+        // var ships = new List<IShip>(gcShips);
+        var ships = new List<IShip>();
+        foreach (var ship in gcShips) {
+            ships.Add(ship.Clone());
+        }
+        
         for (int i = 0; i < ships.Count; i++) {
             var pos = new Position(rng.Next(boardRow), rng.Next(boardCol));
             var rand = rng.Next(2);

@@ -10,21 +10,38 @@ public struct Position
         Y = y;
     }
 
-    // override object.Equals
-    public override bool Equals(object obj)
-    {        
-        if (obj == null || GetType() != obj.GetType())
-        {
-            return false;
-        }
-        
-        return X == ((Position) obj).X
-            && Y == ((Position) obj).Y;
-    }
-    
-    // override object.GetHashCode
-    public override int GetHashCode()
+    // // override object.Equals
+    // public override bool Equals(object? obj)
+    // {
+    //     if (obj == null || GetType() != obj.GetType())
+    //     {
+    //         return false;
+    //     }
+
+    //     return X == ((Position) obj).X
+    //         && Y == ((Position) obj).Y;
+    // }
+
+    // // override object.GetHashCode
+    // public override int GetHashCode()
+    // {
+    //     return (X, Y).GetHashCode();
+    // }
+
+
+    public override string ToString()
     {
-        return HashCode.Combine(X, Y);
+        return $"{this.X},{this.Y}";
     }
+
+
+    public override bool Equals(object? obj) => obj is Position other && this.Equals(other);
+
+    public readonly bool Equals(Position p) => X == p.X && Y == p.Y;
+
+    public override int GetHashCode() => (X, Y).GetHashCode();
+
+    public static bool operator ==(Position lhs, Position rhs) => lhs.Equals(rhs);
+
+    public static bool operator !=(Position lhs, Position rhs) => !(lhs == rhs);
 }

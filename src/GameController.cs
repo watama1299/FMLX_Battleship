@@ -21,8 +21,8 @@ public class GameController
         IPlayer p1,
         IPlayer p2,
         IBoard board,
-        List<IShip> ships,
-        Dictionary<IAmmo, int>? additionalAmmoType = null
+        List<IShip> ships, //IEnumerable
+        Dictionary<IAmmo, int>? additionalAmmoType = null //IDictionary
         ) {
             _templateBoard = board;
             var boardRows = board.GridShip.Items.GetLength(0);
@@ -121,11 +121,12 @@ public class GameController
         Status = GameStatus.INIT;
         return Status;
     }
+    // change List to IEnumerable
     public GameStatus ResetGame(IBoard newBoard, List<IShip> newShips) {
         if (Status != GameStatus.ENDED) return Status;
 
         _templateBoard = newBoard;
-        _templateShips = newShips;
+        _templateShips = newShips; //newShips.ToList()
         return ResetGame();
     }
 
@@ -140,7 +141,14 @@ public class GameController
         Position startCoord,
         ShipOrientation orientation
         ) {
-            if (!_templateShips.Contains(ship)) return false;
+            bool found = false;
+            foreach (var s in _templateShips) {
+                if (ship.GetType() == s.GetType()) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
 
             var playerBoard = GetPlayerBoard(player);
             bool successfulPlacement = playerBoard.PutShipOnBoard(ship, startCoord, orientation);
@@ -165,10 +173,10 @@ public class GameController
             if (!grid.ContainsPosition(position)) return false;
 
             var shipOnPosition = targetBoard.GetShipOnBoard(position);
-            if (shipOnPosition is null) ;
-            else if (
-                shipOnPosition.Positions[position] == PegType.MISS
-                || shipOnPosition.Positions[position] == PegType.HIT) return false;
+            if (shipOnPosition is not null) {
+                if (shipOnPosition.Positions[position] == PegType.MISS
+                    || shipOnPosition.Positions[position] == PegType.HIT) return false;
+            }
             var positionShot = targetBoard.IncomingAttack(position, shootMode);
             
             // update attacker board and data

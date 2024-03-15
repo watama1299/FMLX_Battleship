@@ -16,9 +16,11 @@ public abstract class Ship : IShip
     }
 
     public Dictionary<Position, PegType> AssignPositions(List<Position> generatedPositions, PegType peg = PegType.NONE) {
+        var temp = new Dictionary<Position, PegType>();
         foreach (var pos in generatedPositions) {
-            Positions.Add(pos, peg);
+            temp.Add(pos, peg);
         }
+        Positions = temp;
         return Positions;
     }
 
@@ -53,4 +55,6 @@ public abstract class Ship : IShip
 
         return IsAlive;
     }
+
+    public abstract IShip Clone();
 }

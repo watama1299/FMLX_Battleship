@@ -12,6 +12,15 @@ public class ShipDestroyer : Ship, IShip
 
 
 
+    private ShipDestroyer(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+        ShipLength = length;
+        Positions = pos;
+        IsAlive = isAlive;
+    }
+    public ShipDestroyer() {}
+
+
+
     public new Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         return base.AssignPositions(startCoords, orientation);
     }
@@ -56,5 +65,10 @@ public class ShipDestroyer : Ship, IShip
             Positions,
             IsAlive
         );
+    }
+
+    public override IShip Clone()
+    {
+        return new ShipDestroyer(ShipLength, Positions, IsAlive);
     }
 }

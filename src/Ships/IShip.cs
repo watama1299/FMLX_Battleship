@@ -15,4 +15,5 @@ public interface IShip
     public bool SinkShip();
 
     public string ToString();
+    public IShip Clone();
 }

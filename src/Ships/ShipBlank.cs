@@ -12,6 +12,13 @@ public class ShipBlank : Ship, IShip
 
 
 
+    private ShipBlank(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+        ShipLength = length;
+        Positions = pos;
+        IsAlive = isAlive;
+    }
+    public ShipBlank() {}
+
     public new Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         return base.AssignPositions(startCoords, orientation);
     }
@@ -48,5 +55,10 @@ public class ShipBlank : Ship, IShip
     // override object.GetHashCode
     public override int GetHashCode() {
         return this.GetType().GetHashCode();
+    }
+
+    public override IShip Clone()
+    {
+        return new ShipBlank(ShipLength, Positions, IsAlive);
     }
 }

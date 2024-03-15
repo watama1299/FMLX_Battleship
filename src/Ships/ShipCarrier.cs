@@ -12,6 +12,15 @@ public class ShipCarrier : Ship, IShip
 
 
 
+    private ShipCarrier(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+        ShipLength = length;
+        Positions = pos;
+        IsAlive = isAlive;
+    }
+    public ShipCarrier() {}
+
+
+
     public new Dictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         return base.AssignPositions(startCoords, orientation);
     }
@@ -55,5 +64,10 @@ public class ShipCarrier : Ship, IShip
             Positions,
             IsAlive
         );
+    }
+
+    public override IShip Clone()
+    {
+        return new ShipCarrier(ShipLength, Positions, IsAlive);
     }
 }

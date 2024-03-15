@@ -2,13 +2,22 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
-public class ShipBattleship : Ship, IShip
+public class ShipBattleship : Ship
 {
     public new int ShipLength {get; private set;} = 4;
 
     public new Dictionary<Position, PegType> Positions {get; private set;} = new(4);
 
     public new bool IsAlive {get; private set;} = true;
+
+
+
+    private ShipBattleship(int length, Dictionary<Position, PegType> pos, bool isAlive) {
+        ShipLength = length;
+        Positions = pos;
+        IsAlive = isAlive;
+    }
+    public ShipBattleship() {}
 
 
 
@@ -42,7 +51,7 @@ public class ShipBattleship : Ship, IShip
         {
             return false;
         }
-        
+
         return ShipLength == ((ShipBattleship) obj).ShipLength
             && Positions == ((ShipBattleship) obj).Positions
             && IsAlive == ((ShipBattleship) obj).IsAlive;
@@ -57,4 +66,10 @@ public class ShipBattleship : Ship, IShip
             IsAlive
         );
     }
+
+    public override IShip Clone()
+    {
+        return new ShipBattleship(ShipLength, Positions, IsAlive);
+    }
+
 }
