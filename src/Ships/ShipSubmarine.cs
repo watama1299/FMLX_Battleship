@@ -6,18 +6,19 @@ public class ShipSubmarine : Ship, IShip
 {
     public new int ShipLength {get; private set;} = 3;
 
-    public new Dictionary<Position, PegType> Positions {get; private set;} = new(3);
+    public new IDictionary<Position, PegType> Positions {get; private set;}
 
     public new bool IsAlive {get; private set;} = true;
 
 
 
-    private ShipSubmarine(int length, IDictionary<Position, PegType> pos, bool isAlive) {
-        ShipLength = length;
+    private ShipSubmarine(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
-    public ShipSubmarine() {}
+    public ShipSubmarine() {
+        Positions = new Dictionary<Position, PegType>();
+    }
 
 
 
@@ -47,7 +48,7 @@ public class ShipSubmarine : Ship, IShip
 
     public override IShip Clone()
     {
-        return new ShipSubmarine(ShipLength, Positions, IsAlive);
+        return new ShipSubmarine(Positions, IsAlive);
     }
 
     // override object.Equals

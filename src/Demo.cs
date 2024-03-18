@@ -73,23 +73,26 @@ class Demo {
         GameStatus gameStatus = gc.StartGame();
         var r = new Random();
         var c = new Random();
+        Console.WriteLine("Simulating...");
         while (gameStatus != GameStatus.INIT) {
             var activePlayer = gc.GetCurrentActivePlayer();
-            Console.WriteLine($"{activePlayer.Name} is playing...");
+            // Console.WriteLine($"{activePlayer.Name} is playing...");
             var nonActivePlayer = gc.PreviewNextPlayer();
 
             var posX = r.Next(10);
             var posY = c.Next(10);
-            Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
+            // Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
             bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
             while (successfulShot) {
                 posX = r.Next(10);
                 posY = c.Next(10);
-                Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
+                // Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
                 successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
             }
-            Thread.Sleep(r.Next(10));
+            // Thread.Sleep(r.Next(10));
             gameStatus = gc.NextPlayer();
+            PrintPlayerInfo(gc, p1);
+            PrintPlayerInfo(gc, p2);
             // Console.WriteLine(gameStatus);
 
             if (gameStatus == GameStatus.ENDED) {

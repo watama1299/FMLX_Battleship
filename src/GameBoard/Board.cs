@@ -2,14 +2,13 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 using Battleship.Ships;
 using Battleship.Ammo;
-using System.Net;
 
 namespace Battleship.GameBoard;
 
 public class Board : IBoard
 {
     public IGrid<IShip> GridShip {get; private set;}
-    public Dictionary<IShip, bool> ShipsOnBoard {get; private set;} = new();
+    public IDictionary<IShip, bool> ShipsOnBoard {get; private set;}
     public IGrid<PegType> GridPeg {get; private set;}
 
 
@@ -17,11 +16,13 @@ public class Board : IBoard
     public Board(int squareGridSize) {
         GridShip = new Grid<IShip>(squareGridSize);
         GridPeg = new Grid<PegType>(squareGridSize);
+        ShipsOnBoard = new Dictionary<IShip, bool>();
     }
 
     public Board(int rows, int cols) {
         GridShip = new Grid<IShip>(rows, cols);
         GridPeg = new Grid<PegType>(rows, cols);
+        ShipsOnBoard = new Dictionary<IShip, bool>();
     }
 
 
@@ -95,7 +96,9 @@ public class Board : IBoard
             // update info of ship that was hit
             IShip attackedShip = GetShipOnBoard(pos);
             attackedShip.SetPegOnPosition(pos, PegType.HIT);
-            if (!attackedShip.Positions.ContainsValue(PegType.NONE)) {
+
+            var tempDict = attackedShip.Positions.ToDictionary();
+            if (!tempDict.ContainsValue(PegType.NONE)) {
                 bool sunk = attackedShip.SinkShip();
                 SetShipStatus(shipCheck, sunk);
             }

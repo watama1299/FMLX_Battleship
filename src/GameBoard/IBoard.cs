@@ -7,15 +7,13 @@ namespace Battleship.GameBoard;
 
 public interface IBoard
 {
-    // public int Id {get;}
     public IGrid<IShip> GridShip {get;}
-    public Dictionary<IShip, bool> ShipsOnBoard {get;}
+    public IDictionary<IShip, bool> ShipsOnBoard {get;}
     public IGrid<PegType> GridPeg {get;}
 
 
 
     public bool PutShipOnBoard(IShip playerShip, Position position, ShipOrientation orientation);
-
     public IShip? GetShipOnBoard(Position position);
     public bool CheckShipGridPosition(Position position);
     public bool CheckShipGridPosition(IEnumerable<Position> positions);

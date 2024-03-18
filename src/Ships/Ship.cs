@@ -5,7 +5,7 @@ namespace Battleship.Ships;
 public abstract class Ship : IShip
 {
     public virtual int ShipLength {get; private set;}
-    public virtual Dictionary<Position, PegType> Positions {get; private set;}
+    public virtual IDictionary<Position, PegType> Positions {get; private set;}
     public virtual bool IsAlive {get; private set;} = true;
 
 
