@@ -2,40 +2,22 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
-public class ShipBattleship : Ship, IShip
+public class ShipBattleship : Ship
 {
-    public new int ShipLength {get; private set;} = 4;
+    public override int ShipLength {get; protected set;} = 4; // override and protected
 
-    public new IDictionary<Position, PegType> Positions {get; private set;}
+    public override IDictionary<Position, PegType> Positions {get; protected set;}
 
-    public new bool IsAlive {get; private set;} = true;
+    public override bool IsAlive {get; protected set;} = true;
 
 
 
     private ShipBattleship(IDictionary<Position, PegType> pos, bool isAlive) {
-        Positions = pos.ToDictionary();
+        Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
     public ShipBattleship() {
         Positions = new Dictionary<Position, PegType>();
-    }
-
-
-
-
-    public new IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
-        return base.GeneratePositions(startCoords, orientation, ShipLength);
-    }
-    public new IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
-        return base.AssignPositions(startCoords, orientation);
-    }
-
-    public new IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositons, PegType peg = PegType.NONE) {
-        return base.AssignPositions(generatedPositons, Positions, peg);
-    }
-
-    public new bool SinkShip() {
-        return base.SinkShip();
     }
 
 

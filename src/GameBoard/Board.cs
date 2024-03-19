@@ -111,9 +111,15 @@ public class Board : IBoard
     }
     
     private void SetShipStatus(IShip ship, bool isAlive) {
+        var tempShips = new Dictionary<IShip, bool>();
         foreach (var kv in ShipsOnBoard) {
-            if (ship.Equals(kv.Key)) ShipsOnBoard[kv.Key] = isAlive;
+            if (!ship.Equals(kv.Key)) {
+                tempShips.Add(kv.Key, kv.Value);
+            } else {
+                tempShips.Add(kv.Key, isAlive);
+            }
         }
+        ShipsOnBoard = tempShips;
     }
 
     private void PutPegOnBoard(Position position, PegType peg) {

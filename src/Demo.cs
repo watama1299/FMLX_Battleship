@@ -60,14 +60,10 @@ class Demo {
         if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
         else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
         // PlacingShipsRandom(gc, p1, ships);
-        PrintPlayerInfo(gc, p1);
-        // Console.ReadLine();
 
-        // for (int i = 0; i < gc.GetPlayerBoard(p1).GridShip.TotalGrid; i++) {
-        //     gc.PlayerShoot(p1, p2, new Position(i/10, i%5), new MissileSingle());
-        // }
         PrintPlayerInfo(gc, p1);
         PrintPlayerInfo(gc, p2);
+        Console.ReadLine();
 
 
         GameStatus gameStatus = gc.StartGame();
@@ -120,6 +116,7 @@ class Demo {
                     Console.WriteLine("Starting game again...");
                     gameStatus = gc.StartGame();
                 } else {
+                    Console.Clear();
                     Environment.Exit(0);
                 }
             }
@@ -209,6 +206,21 @@ class Demo {
 
         return grid;
     }
+    static Grid PrintShipStatus(Dictionary<IShip, bool> ships) {
+        var grid = new Grid();
+        
+        grid.AddColumns(new GridColumn().Centered(), new GridColumn().Centered());
+        grid.AddRow("Ship Types", "Alive/Dead");
+        foreach (var kv in ships) {
+            string[] temp = new string[2];
+            temp[0] = kv.Key.ToString();
+            if (kv.Value) temp[1] = "[green]Alive[/]";
+            else temp[1] = "[red]Dead[/]";
+            grid.AddRow(temp);
+        }
+
+        return grid;
+    }
     static void PrintPlayerInfo(GameController gc, IPlayer player) {
         var board = gc.GetPlayerData(player).PlayerBoard;
         var ammo = gc.GetPlayerData(player).Ammo;
@@ -216,20 +228,19 @@ class Demo {
         var ui = new Table()
             .Centered()
             .Title($"{player.Name}'s Deck");
+        ui.AddColumn(new TableColumn("Ships Status").Centered());
         ui.AddColumn(new TableColumn("Your Ships").Centered());
         ui.AddColumn(new TableColumn("Enemy Ships").Centered());
         ui.AddColumn(new TableColumn("Ammo Stock").Centered());
 
         ui.AddRow(
+            PrintShipStatus(board.ShipsOnBoard.ToDictionary()),
             PrintGrid(board.GridShip).Centered(),
             PrintGrid(board.GridPeg).Centered(),
             PrintAmmo(ammo)
             );
 
         AnsiConsole.Write(ui);
-    }
-    static Position InputToPosition(int rows, int cols) {
-        return new Position(rows, cols);
     }
     static Position InputToPosition(string input) {
         string[] temp = input.ToLower().Split(" ");

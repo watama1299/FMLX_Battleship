@@ -4,9 +4,9 @@ namespace Battleship.Ships;
 
 public interface IShip
 {
-    public abstract int ShipLength {get;}
-    public abstract IDictionary<Position, PegType> Positions {get;}
-    public abstract bool IsAlive {get;}
+    public int ShipLength {get;}
+    public IDictionary<Position, PegType> Positions {get;}
+    public bool IsAlive {get;}
 
 
 

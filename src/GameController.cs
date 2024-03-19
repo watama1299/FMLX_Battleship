@@ -51,7 +51,7 @@ public class GameController
     /// <param name="board">Board that will be used by both players</param>
     /// <param name="ships">Ships that will be used by both players</param>
     /// <param name="additionalAmmoType">Additional types of ammo added to the game.
-    ///                                  If null, game will only used default ammo based on size of board.
+    ///                                  If null, game will only use default ammo based on size of board.
     /// </param>
     public GameController(
         IPlayer p1,
@@ -184,7 +184,7 @@ public class GameController
     }
 
     /// <summary>
-    /// Method to reset the game using new boards and new ships.
+    /// Method to reset the game using new boards, new ships and/or new ammo types.
     /// </summary>
     /// <param name="newBoard">New template board</param>
     /// <param name="newShips">New template ships</param>

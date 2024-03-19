@@ -4,11 +4,11 @@ namespace Battleship.Ships;
 
 public class ShipBlank : Ship, IShip
 {
-    public new int ShipLength {get; private set;} = 1;
+    public override int ShipLength {get; protected set;} = 1;
 
-    public new IDictionary<Position, PegType> Positions {get; private set;}
+    public override IDictionary<Position, PegType> Positions {get; protected set;}
 
-    public new bool IsAlive {get; private set;} = true;
+    public override bool IsAlive {get; protected set;} = true;
 
 
 
@@ -18,24 +18,6 @@ public class ShipBlank : Ship, IShip
     }
     public ShipBlank() {
         Positions = new Dictionary<Position, PegType>();
-    }
-
-
-
-
-    public new IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
-        return base.GeneratePositions(startCoords, orientation, ShipLength);
-    }
-    public new IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
-        return base.AssignPositions(startCoords, orientation);
-    }
-
-    public new IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositons, PegType peg = PegType.NONE) {
-        return base.AssignPositions(generatedPositons, Positions, peg);
-    }
-
-    public new bool SinkShip() {
-        return base.SinkShip();
     }
 
 

@@ -4,9 +4,9 @@ namespace Battleship.Ships;
 
 public abstract class Ship : IShip
 {
-    public virtual int ShipLength {get; private set;}
-    public virtual IDictionary<Position, PegType> Positions {get; private set;}
-    public virtual bool IsAlive {get; private set;} = true;
+    public virtual int ShipLength {get; protected set;}
+    public virtual IDictionary<Position, PegType> Positions {get; protected set;}
+    public virtual bool IsAlive {get; protected set;} = true;
 
 
 
@@ -46,7 +46,7 @@ public abstract class Ship : IShip
     protected IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, IDictionary<Position, PegType> positions, PegType peg = PegType.NONE) {
         Positions = (Dictionary<Position, PegType>) positions;
         return AssignPositions(generatedPositions, peg);
-    }
+            }
 
     public virtual PegType GetPegOnPosition(Position pos) {
         var output = new PegType();
@@ -65,7 +65,7 @@ public abstract class Ship : IShip
         return output;
     }
     
-    public bool SinkShip() {
+    public virtual bool SinkShip() {
         if (IsAlive) {
             int count = 0;
             foreach (var kv in Positions) {
