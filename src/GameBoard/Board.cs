@@ -47,6 +47,9 @@ public class Board : IBoard
         }
     public IShip? GetShipOnBoard(Position position) {
         IShip? ship = null;
+
+        // check for x and y whether in bound
+
         try {
             ship = GridShip.Items[position.X, position.Y];
         } catch (Exception) {

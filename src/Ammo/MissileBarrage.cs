@@ -1,8 +1,16 @@
 using Battleship.Utils;
 namespace Battleship.Ammo;
 
+/// <summary>
+/// 
+/// </summary>
 public class MissileBarrage : IAmmo
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <returns></returns>
     public IEnumerable<Position> Shoot(Position origin) {
         var output = new List<Position>();
         output.Add(origin);

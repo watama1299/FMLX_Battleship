@@ -102,12 +102,14 @@ public class GameController
     /// <exception cref="Exception">
     /// Thrown exception if player has no ships or has not put all their ships on their boards.
     /// </exception>
-    public GameStatus StartGame() {
+    public GameStatus StartGame() { // out string errormsg
         if (Status != GameStatus.INIT) return Status;
         
         List<IPlayer> players = _playersData.Keys.ToList();
         foreach (var player in players) {
             var playerShips = new List<IShip>(GetPlayerShipsAll(player));
+
+            // change errormsg to string not exception
             if (playerShips is null || playerShips.Count == 0) {
                 throw new Exception("Player has no ships!");
             }
@@ -308,7 +310,7 @@ public class GameController
     /// Utility method to get the next player in the queue
     /// </summary>
     /// <returns>Next player to play</returns>
-    public IPlayer PreviewNextPlayer() {
+    public IPlayer? PreviewNextPlayer() {
         var currentPlayer = GetCurrentActivePlayer();
         foreach (var p in GetPlayers()) {
             if (!p.Equals(currentPlayer)) return p;
@@ -352,26 +354,53 @@ public class GameController
         return _playersData[player].PlayerBoard;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
     public IGrid<IShip> GetPlayerGridShip(IPlayer player) {
         var board = GetPlayerBoard(player);
         return board.GridShip;
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
     public IGrid<PegType> GetPlayerGridPeg(IPlayer player) {
         var board = GetPlayerBoard(player);
         return board.GridPeg;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public IDictionary<IShip, bool> GetPlayerShipsStatus(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         return _playersData[player].PlayerBoard.ShipsOnBoard;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
     public IEnumerable<IShip> GetPlayerShipsAll(IPlayer player) {
         return GetPlayerShipsStatus(player).Keys.ToList();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public IEnumerable<IShip> GetPlayerShipsLive(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
@@ -385,6 +414,12 @@ public class GameController
         return liveShips;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public IEnumerable<IShip> GetPlayerShipsSunk(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
@@ -398,12 +433,24 @@ public class GameController
         return sunkShips;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public IDictionary<IAmmo, int> GetPlayerAmmoStock(IPlayer player) {
         if (!_playersData.ContainsKey(player)) throw new Exception("No such player!");
 
         return _playersData[player].Ammo;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="ammoType"></param>
+    /// <returns></returns>
     public int GetPlayerAmmoCount(IPlayer player, IAmmo ammoType) {
         var ammo = GetPlayerAmmoStock(player);
         return ammo[ammoType];
