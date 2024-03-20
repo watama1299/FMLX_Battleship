@@ -7,6 +7,7 @@ IBoard --|> Board
 IGrid --|> Grid
 IBoard --* IGrid
 
+IBoard --* IShip
 IBoard --* PegType
 IBoard --* Position
 IGrid~T~ --* Position
@@ -95,10 +96,10 @@ namespace Players {
 
     class PlayerBattleshipData {
         +IBoard PlayerBoard get; private set;
-        +Dictionary~IAmmo, int~ Ammo get; private set;
+        +IDictionary~IAmmo, int~ Ammo get; private set;
 
         +PlayerBattleshipData(IBoard)
-        +PlayerBattleshipData(IBoard, Dictionary~IAmmo, int~)
+        +PlayerBattleshipData(IBoard, IDictionary~IAmmo, int~)
 
         +GetAmmoCount(IAmmo) int
         +GiveAmmo(IAmmo, int) bool
@@ -114,6 +115,8 @@ namespace Utils {
         +int X : readonly
         +int Y : readonly
         +Position(int, int)
+
+        +ToString() string
     }
 
     class GameStatus {
@@ -140,12 +143,6 @@ namespace Utils {
 
 
 IShip --|> Ship
-IShip --|> ShipBattleship
-IShip --|> ShipBlank
-IShip --|> ShipCarrier
-IShip --|> ShipCruiser
-IShip --|> ShipDestroyer
-IShip --|> ShipSubmarine
 Ship --|> ShipBattleship
 Ship --|> ShipBlank
 Ship --|> ShipCarrier
@@ -160,12 +157,12 @@ namespace Ships {
     class IShip {
         <<Interface>>
         +int ShipLength : readonly 
-        +Dictionary ~Position, PegType~ position : readonly
+        +IDictionary ~Position, PegType~ position : readonly
         +bool IsAlive
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
+        +AssignPositions(Position, ShipOrientation) IDictionary~Position, PegType~
+        +AssignPositions(IEnumerable~Position~, PegType = NONE) IDictionary~Position, PegType~
+        +GeneratePositions(Position, ShipOrientation) IEnumerable~Position~
         +SinkShip() bool
 
         +ToString() string
@@ -175,19 +172,19 @@ namespace Ships {
     class Ship {
         <<Abstract>>
         +virtual int ShipLength get; protected set;
-        +virtual Dictionary ~Position, PegType~ position get; protected set;
+        +virtual IDictionary ~Position, PegType~ position get; protected set;
         +virtual bool IsAlive get; protected set; = true
 
-        +virtual AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +virtual AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +virtual GeneratePositions(Position, ShipOrientation) List~Position~
+        +virtual AssignPositions(Position, ShipOrientation) IDictionary~Position, PegType~
+        +virtual AssignPositions(IEnumerable~Position~, PegType = NONE) IDictionary~Position, PegType~
+        +virtual GeneratePositions(Position, ShipOrientation) IEnumerable~Position~
         +virtual SinkShip() bool
         +Clone() IShip*
     }
 
     class ShipBattleship {
         +int ShipLength get; protected set; = 4
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
@@ -199,7 +196,7 @@ namespace Ships {
 
     class ShipBlank {
         +int ShipLength get; protected set; = 1
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
@@ -211,7 +208,7 @@ namespace Ships {
 
     class ShipCarrier {
         +int ShipLength get; protected set; = 5
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
@@ -223,7 +220,7 @@ namespace Ships {
 
     class ShipCruiser {
         +int ShipLength get; protected set; = 3
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
@@ -235,7 +232,7 @@ namespace Ships {
 
     class ShipDestroyer {
         +int ShipLength get; protected set; = 2
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
@@ -247,7 +244,7 @@ namespace Ships {
 
     class ShipSubmarine {
         +int ShipLength get; protected set; = 3
-        +Dictionary ~Position, PegType~ position get; protected set;
+        +IDictionary ~Position, PegType~ position get; protected set;
         +bool IsAlive get; protected set; = true
 
         +ToString() string
