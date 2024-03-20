@@ -1,12 +1,27 @@
 namespace Battleship.Utils;
 
+/// <summary>
+/// Struct to ease positional data handling during a game of Battleship
+/// </summary>
 public struct Position
 {
+    /// <summary>
+    /// x-coordinate / column number
+    /// </summary>
     public int X {get; private set;}
+
+    /// <summary>
+    /// y-coordinate / row number
+    /// </summary>
     public int Y {get; private set;}
 
 
 
+    /// <summary>
+    /// Constructor for a Position struct
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
     public Position(int x, int y) {
         X = x;
         Y = y;

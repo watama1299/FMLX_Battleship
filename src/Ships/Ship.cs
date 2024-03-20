@@ -2,6 +2,9 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
+/// <summary>
+/// Abstract class which implements the functionalities of the methods from the <c>IShip</c> interface
+/// </summary>
 public abstract class Ship : IShip
 {
     public virtual int ShipLength {get; protected set;}
@@ -10,7 +13,7 @@ public abstract class Ship : IShip
 
 
 
-    public IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
+    public virtual IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation) {
         var possiblePositions = new List<Position>();
         if (orientation == ShipOrientation.VERTICAL) {
             for (int i = 0; i < ShipLength; i++) {
@@ -24,17 +27,12 @@ public abstract class Ship : IShip
         return possiblePositions;
     }
 
-    protected IEnumerable<Position> GeneratePositions(Position startCoords, ShipOrientation orientation, int length) {
-        ShipLength = length;
-        return GeneratePositions(startCoords, orientation);
-    }
-
-    public IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
+    public virtual IDictionary<Position, PegType> AssignPositions(Position startCoords, ShipOrientation orientation) {
         var tempPos = GeneratePositions(startCoords, orientation);
         return AssignPositions(tempPos);
     }
 
-    public IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, PegType peg = PegType.NONE) {
+    public virtual IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, PegType peg = PegType.NONE) {
         var temp = new Dictionary<Position, PegType>();
         foreach (var pos in generatedPositions) {
             temp.Add(pos, peg);
@@ -43,15 +41,13 @@ public abstract class Ship : IShip
         return Positions;
     }
 
-    protected IDictionary<Position, PegType> AssignPositions(IEnumerable<Position> generatedPositions, IDictionary<Position, PegType> positions, PegType peg = PegType.NONE) {
-        Positions = (Dictionary<Position, PegType>) positions;
-        return AssignPositions(generatedPositions, peg);
-            }
-
     public virtual PegType GetPegOnPosition(Position pos) {
         var output = new PegType();
         foreach (var kv in Positions) {
-            if (kv.Key.Equals(pos)) output = kv.Value;
+            if (kv.Key.Equals(pos)) {
+                output = kv.Value;
+                break;
+            }
         }
         return output;
     }
@@ -65,6 +61,8 @@ public abstract class Ship : IShip
         return output;
     }
     
+
+
     public virtual bool SinkShip() {
         if (IsAlive) {
             int count = 0;

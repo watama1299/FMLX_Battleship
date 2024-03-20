@@ -49,6 +49,14 @@ public class PlayerBattleshipData
 
 
 
+    /// <summary>
+    /// Method to get the ammo count of a specific ammo type
+    /// </summary>
+    /// <param name="ammoType">Ammo type</param>
+    /// <returns>
+    /// <c>-1</c> if ammo type not found,
+    /// if ammo type found then returns the amount left
+    /// </returns>
     public int GetAmmoCount(IAmmo ammoType) {
         if (!Ammo.ContainsKey(ammoType)) {
             return -1;
@@ -56,6 +64,15 @@ public class PlayerBattleshipData
         return Ammo[ammoType];
     }
 
+    /// <summary>
+    /// Method to give players more ammo of a specific ammo type
+    /// </summary>
+    /// <param name="ammoType">Ammo type</param>
+    /// <param name="amount">Amount of ammo to give the player</param>
+    /// <returns>
+    /// <c>true</c> if successful
+    /// <c>false</c> if ammo given is less than or equal to 0
+    /// </returns>
     public bool GiveAmmo(IAmmo ammoType, int amount) {
         if (amount <= 0) return false;
 
@@ -67,6 +84,17 @@ public class PlayerBattleshipData
         return true;
     }
 
+    /// <summary>
+    /// Method to remove an amount of specific type of ammo from the player
+    /// </summary>
+    /// <param name="ammoType">Ammo type</param>
+    /// <param name="amount">Amount of ammo to remove from player</param>
+    /// <returns>
+    /// <c>true</c> if successful
+    /// <c>false</c> if ammo given is less than or equal to 0, 
+    /// ammo is already at 0, if ammo doesn't exist or
+    /// amount to remove is greater than stock
+    /// </returns>
     public bool RemoveAmmo(IAmmo ammoType, int amount) {
         if (amount <= 0) return false;
         

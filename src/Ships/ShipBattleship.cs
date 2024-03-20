@@ -4,7 +4,7 @@ namespace Battleship.Ships;
 
 public class ShipBattleship : Ship
 {
-    public override int ShipLength {get; protected set;} = 4; // override and protected
+    public override int ShipLength {get; protected set;} = 4;
 
     public override IDictionary<Position, PegType> Positions {get; protected set;}
 
@@ -12,10 +12,19 @@ public class ShipBattleship : Ship
 
 
 
+    /// <summary>
+    /// Private constructor, only used during cloning process
+    /// </summary>
+    /// <param name="pos">List of positions</param>
+    /// <param name="isAlive">Alive(true) / Dead(false)</param>
     private ShipBattleship(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
+
+    /// <summary>
+    /// Constructor for the ship type Battleship
+    /// </summary>
     public ShipBattleship() {
         Positions = new Dictionary<Position, PegType>();
     }

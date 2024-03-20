@@ -11,6 +11,8 @@ namespace GameDemo;
 
 class Demo {
     static void Main(string[] args) {
+        string errorMessages = string.Empty;
+
         Console.Write("Enter name for Player 1 > ");
         Player p1 = new Player("Yanto");
 
@@ -44,29 +46,29 @@ class Demo {
         GameController gc = new(p1, p2, board, ships, ammo);
         Console.WriteLine($"Game state: {gc.Status}");
 
-        PrintPlayerInfo(gc, p1);
+        PrintPlayerInfo(gc, p1, out errorMessages);
         // Console.ReadLine();
 
 
         Console.WriteLine("Placing P2 ships...");
-        PlacingShipsRandom(gc, p2, ships);
-        PrintPlayerInfo(gc, p2);
+        PlacingShipsRandom(gc, p2, ships, out errorMessages);
+        PrintPlayerInfo(gc, p2, out errorMessages);
         // Console.ReadLine();
         
 
         Console.WriteLine("Place your ships...");
         Console.Write("Do you want to randomise your ships? (y/n) > ");
         var ans = Console.ReadLine();
-        if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
-        else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
+        if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships, out errorMessages);
+        else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships, out errorMessages);
         // PlacingShipsRandom(gc, p1, ships);
 
-        PrintPlayerInfo(gc, p1);
-        PrintPlayerInfo(gc, p2);
+        PrintPlayerInfo(gc, p1, out errorMessages);
+        PrintPlayerInfo(gc, p2, out errorMessages);
         Console.ReadLine();
 
 
-        GameStatus gameStatus = gc.StartGame();
+        GameStatus gameStatus = gc.StartGame(out errorMessages);
         var r = new Random();
         var c = new Random();
         Console.WriteLine("Simulating...");
@@ -78,43 +80,43 @@ class Demo {
             var posX = r.Next(10);
             var posY = c.Next(10);
             // Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
-            bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
+            bool successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle(), out errorMessages);
             while (successfulShot) {
                 posX = r.Next(10);
                 posY = c.Next(10);
                 // Console.WriteLine($"{activePlayer.Name} is trying to launch {new MissileSingle()} at position [[{posX}, {posY}]]");
-                successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle());
+                successfulShot = gc.PlayerShoot(activePlayer, nonActivePlayer, new Position(posX, posY), new MissileSingle(), out errorMessages);
             }
             // Thread.Sleep(r.Next(10));
-            gameStatus = gc.NextPlayer();
-            PrintPlayerInfo(gc, p1);
-            PrintPlayerInfo(gc, p2);
+            gameStatus = gc.NextPlayer(out errorMessages);
+            PrintPlayerInfo(gc, p1, out errorMessages);
+            PrintPlayerInfo(gc, p2, out errorMessages);
             // Console.WriteLine(gameStatus);
 
             if (gameStatus == GameStatus.ENDED) {
-                PrintPlayerInfo(gc, p1);
-                PrintPlayerInfo(gc, p2);
+                PrintPlayerInfo(gc, p1, out errorMessages);
+                PrintPlayerInfo(gc, p2, out errorMessages);
                 Console.WriteLine($"{nonActivePlayer.Name} wins!");
 
                 Console.Write("Would you like to play again? (y/n) > ");
                 if (Console.ReadLine() == "y") {
                     Console.Clear();
                     Console.WriteLine("Resetting game...");
-                    gameStatus = gc.ResetGame();
+                    gameStatus = gc.ResetGame(out errorMessages);
 
                     Console.WriteLine("Place your ships...");
                     Console.Write("Do you want to randomise your ships? (y/n) > ");
                     ans = Console.ReadLine();
-                    if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships);
-                    else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships);
+                    if (ans.ToLower() == "y") PlacingShipsRandom(gc, p1, ships, out errorMessages);
+                    else if (ans.ToLower() == "n") PlacingShipsSet(gc, p1, ships, out errorMessages);
                     // PlacingShipsRandom(gc, p1, ships);
-                    PlacingShipsRandom(gc, p2, ships);
+                    PlacingShipsRandom(gc, p2, ships, out errorMessages);
 
-                    PrintPlayerInfo(gc, p1);
-                    PrintPlayerInfo(gc, p2);
+                    PrintPlayerInfo(gc, p1, out errorMessages);
+                    PrintPlayerInfo(gc, p2, out errorMessages);
 
                     Console.WriteLine("Starting game again...");
-                    gameStatus = gc.StartGame();
+                    gameStatus = gc.StartGame(out errorMessages);
                 } else {
                     Console.Clear();
                     Environment.Exit(0);
@@ -221,9 +223,9 @@ class Demo {
 
         return grid;
     }
-    static void PrintPlayerInfo(GameController gc, IPlayer player) {
-        var board = gc.GetPlayerData(player).PlayerBoard;
-        var ammo = gc.GetPlayerData(player).Ammo;
+    static void PrintPlayerInfo(GameController gc, IPlayer player, out string errorMessage) {
+        var board = gc.GetPlayerData(player, out errorMessage).PlayerBoard;
+        var ammo = gc.GetPlayerData(player, out errorMessage).Ammo;
 
         var ui = new Table()
             .Centered()
@@ -249,12 +251,13 @@ class Demo {
 
         return new Position(rows, cols);
     }
-    static void PlacingShipsSet(GameController gc, IPlayer player, List<IShip> gcShips) {
+    static void PlacingShipsSet(GameController gc, IPlayer player, List<IShip> gcShips, out string errorMessage) {
+        errorMessage = string.Empty;
         var ships = gcShips.ToList();
         // gcShips.CopyTo(ships, 0);
 
         Console.WriteLine("Place your ships...");
-        PrintPlayerInfo(gc, player);
+        PrintPlayerInfo(gc, player, out errorMessage);
         foreach (var ship in ships) {
             Console.Write($"Place your {ship.ToString()} at location (eg. A 1) > ");
             var pos = Console.ReadLine();
@@ -266,7 +269,7 @@ class Demo {
             else if (inputOr == "h") orientation = ShipOrientation.HORIZONTAL;
 
             bool accepted;
-            accepted = gc.PlayerPlaceShip(player, ship, InputToPosition(pos), orientation);
+            accepted = gc.PlayerPlaceShip(player, ship, InputToPosition(pos), orientation, out errorMessage);
             while (!accepted) {
                 Console.WriteLine("Try again");
                 Console.Write($"Place your {ship.ToString()} at location (eg. A 1) > ");
@@ -276,15 +279,16 @@ class Demo {
                 inputOr = Console.ReadLine();
                 if (inputOr == "v") orientation = ShipOrientation.VERTICAL;
                 else if (inputOr == "h") orientation = ShipOrientation.HORIZONTAL;
-                accepted = gc.PlayerPlaceShip(player, ship, InputToPosition(pos), orientation);
+                accepted = gc.PlayerPlaceShip(player, ship, InputToPosition(pos), orientation, out errorMessage);
             }
-            PrintPlayerInfo(gc, player);
+            PrintPlayerInfo(gc, player, out errorMessage);
         }
     }
-    static void PlacingShipsRandom(GameController gc, IPlayer player, List<IShip> gcShips) {
+    static void PlacingShipsRandom(GameController gc, IPlayer player, List<IShip> gcShips, out string errorMessage) {
+        errorMessage = string.Empty;
         Random rng = new();
-        int boardRow = gc.GetPlayerBoard(player).GridShip.Items.GetLength(0);
-        int boardCol = gc.GetPlayerBoard(player).GridShip.Items.GetLength(1);
+        int boardRow = gc.GetPlayerBoard(player, out errorMessage).GridShip.Items.GetLength(0);
+        int boardCol = gc.GetPlayerBoard(player, out errorMessage).GridShip.Items.GetLength(1);
 
         // var ships = new List<IShip>(gcShips);
         var ships = new List<IShip>();
@@ -300,14 +304,14 @@ class Demo {
             else orientation = ShipOrientation.HORIZONTAL;
 
             bool accepted;
-            accepted = gc.PlayerPlaceShip(player, ships[i], pos, orientation);
+            accepted = gc.PlayerPlaceShip(player, ships[i], pos, orientation, out errorMessage);
             while (!accepted) {
                 pos = new Position(rng.Next(boardRow), rng.Next(boardCol));
                 rand = rng.Next(2);
                 if (rand == 0) orientation = ShipOrientation.VERTICAL;
                 else orientation = ShipOrientation.HORIZONTAL;
 
-                accepted = gc.PlayerPlaceShip(player, ships[i], pos, orientation);
+                accepted = gc.PlayerPlaceShip(player, ships[i], pos, orientation, out errorMessage);
             }
         }
     }

@@ -5,6 +5,9 @@ using Battleship.Ammo;
 
 namespace Battleship.GameBoard;
 
+/// <summary>
+/// Concrete class which implements the <c>IBoard</c> interface
+/// </summary>
 public class Board : IBoard
 {
     public IGrid<IShip> GridShip {get; private set;}
@@ -13,12 +16,21 @@ public class Board : IBoard
 
 
 
+    /// <summary>
+    /// Constructor for boards that have square shaped grids
+    /// </summary>
+    /// <param name="squareGridSize">Length of one side in units/boxes</param>
     public Board(int squareGridSize) {
         GridShip = new Grid<IShip>(squareGridSize);
         GridPeg = new Grid<PegType>(squareGridSize);
         ShipsOnBoard = new Dictionary<IShip, bool>();
     }
 
+    /// <summary>
+    /// Constructor for boards that have rectangular shaped grids
+    /// </summary>
+    /// <param name="rows">Number of rows on the grid</param>
+    /// <param name="cols">Number of columns on the grid</param>
     public Board(int rows, int cols) {
         GridShip = new Grid<IShip>(rows, cols);
         GridPeg = new Grid<PegType>(rows, cols);
@@ -47,8 +59,6 @@ public class Board : IBoard
         }
     public IShip? GetShipOnBoard(Position position) {
         IShip? ship = null;
-
-        // check for x and y whether in bound
 
         try {
             ship = GridShip.Items[position.X, position.Y];
@@ -110,6 +120,14 @@ public class Board : IBoard
         return output;
     }
     
+    /// <summary>
+    /// Helper method to update the status of the ships on board
+    /// </summary>
+    /// <param name="ship">Ship to be updated</param>
+    /// <param name="isAlive">
+    /// <c>true</c> if the ship is still alive, 
+    /// <c>false</c> if the ship has sunk
+    /// </param>
     private void SetShipStatus(IShip ship, bool isAlive) {
         var tempShips = new Dictionary<IShip, bool>();
         foreach (var kv in ShipsOnBoard) {
@@ -122,6 +140,11 @@ public class Board : IBoard
         ShipsOnBoard = tempShips;
     }
 
+    /// <summary>
+    /// Method to put a singular peg on a singular position
+    /// </summary>
+    /// <param name="position">Position on the grid</param>
+    /// <param name="peg">Type of peg put in the position</param>
     private void PutPegOnBoard(Position position, PegType peg) {
         var currentPeg = GridPeg.Items[position.X, position.Y];
         if (currentPeg == PegType.NONE) GridPeg.PlaceItemOnGrid(position, peg);
