@@ -2,17 +2,30 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.GameBoard;
 
+/// <summary>
+/// Concrete class which implements the <c>IGrid</c> interface
+/// </summary>
+/// <typeparam name="T">Any object which will be contained within the grid</typeparam>
 public class Grid<T> : IGrid<T>
 {
     public T[,] Items {get; private set;}
     public int TotalGrid {get; private set;}
     
 
-
+    /// <summary>
+    /// Constructor for a square shaped grid
+    /// </summary>
+    /// <param name="size">Length of one side in units/boxes</param>
     public Grid(int size) {
         Items = new T[size, size];
         TotalGrid = size * size;
     }
+
+    /// <summary>
+    /// Constructor for a rectangle shaped grid
+    /// </summary>
+    /// <param name="rows">Number of rows</param>
+    /// <param name="cols">Number of columns</param>
     public Grid(int rows, int cols) {
         Items = new T[rows, cols];
         TotalGrid = rows * cols;

@@ -2,15 +2,10 @@ using Battleship.Utils;
 namespace Battleship.Ammo;
 
 /// <summary>
-/// 
+/// Concrete class for a missile barrage implementation
 /// </summary>
 public class MissileBarrage : IAmmo
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="origin"></param>
-    /// <returns></returns>
     public IEnumerable<Position> Shoot(Position origin) {
         var output = new List<Position>();
         output.Add(origin);

@@ -1,6 +1,9 @@
 using Battleship.Utils;
 namespace Battleship.Ammo;
 
+/// <summary>
+/// Concrete class for the default single target ammo of battleship game
+/// </summary>
 public class MissileSingle : IAmmo
 {
     public IEnumerable<Position> Shoot(Position origin) {

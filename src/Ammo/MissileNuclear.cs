@@ -1,6 +1,9 @@
 using Battleship.Utils;
 namespace Battleship.Ammo;
 
+/// <summary>
+/// Concrete class for a nuclear missile implementation
+/// </summary>
 public class MissileNuclear : IAmmo
 {
     public IEnumerable<Position> Shoot(Position origin) {

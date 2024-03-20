@@ -7,7 +7,7 @@ namespace Battleship.Ammo;
 public interface IAmmo
 {
     /// <summary>
-    /// Method used to shoot the type of shot
+    /// Method used to shoot the type of ammo
     /// </summary>
     /// <param name="origin">Target location</param>
     /// <returns>A list of positions hit by the ammo type</returns>
