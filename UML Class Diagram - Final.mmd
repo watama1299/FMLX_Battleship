@@ -8,30 +8,28 @@ IGrid --|> Grid
 IBoard --* IGrid
 
 IBoard --* PegType
-Board --* PegType
 IBoard --* Position
-Board --* Position
 IGrid~T~ --* Position
-Grid~T~ --* Position
 namespace GameBoard{
     class IBoard {
         <<Interface>>
         +IGrid~IShip~ GridShip : readonly
-        +Dictionary~IShip, bool~ ShipsOnBoard : readonly
+        +IDictionary~IShip, bool~ ShipsOnBoard : readonly
         +IGrid~PegType~ GridPeg : readonly
 
         +PutShipOnBoard(IShip, Position, ShipOrientation) bool
         +GetShipOnBoard(Position) IShip?
         +CheckShipGridPosition(Position) bool
-        +CheckShipGridPosition(List~Position~) bool
-        +IncomingAttack(Position, IAmmo) Dictionary~Position, PegType~
-        +PutPegOnBoard(Dictionary~Position, PegType~) void
+        +CheckShipGridPosition(IEnumerable~Position~) bool
+
+        +IncomingAttack(Position, IAmmo) IDictionary~Position, PegType~
+        +PutPegOnBoard(IDictionary~Position, PegType~) void
     }
 
     class Board{
-        +IGrid~IShip~ GridShip : readonly
-        +Dictionary~IShip, bool~ ShipsOnBoard : readonly
-        +IGrid~PegType~ GridPeg : readonly
+        +IGrid~IShip~ GridShip get; private set;
+        +IDictionary~IShip, bool~ ShipsOnBoard get; private set;
+        +IGrid~PegType~ GridPeg get; private set;
 
         +Board(int)
         +Board(int, int)
@@ -39,10 +37,12 @@ namespace GameBoard{
         +PutShipOnBoard(IShip, Position, ShipOrientation) bool
         +GetShipOnBoard(Position) IShip?
         +CheckShipGridPosition(Position) bool
-        +CheckShipGridPosition(List~Position~) bool
-        +IncomingAttack(Position, IAmmo) Dictionary~Position, PegType~
+        +CheckShipGridPosition(IEnumerable~Position~) bool
+
+        +IncomingAttack(Position, IAmmo) IDictionary~Position, PegType~
+        -SetShipStatus(IShip, bool) void
+        +PutPegOnBoard(IDictionary~Position, PegType~) void
         -PutPegOnBoard(Position, peg) void
-        +PutPegOnBoard(Dictionary~Position, PegType~) void
     }
 
     class IGrid~T~{
@@ -51,24 +51,24 @@ namespace GameBoard{
         +int TotalGrid : readonly
 
         +PlaceItemOnGrid(Position, T) bool
-        +PlaceItemOnGrid(Dictionary~Position, T~) bool
+        +PlaceItemOnGrid(IDictionary~Position, T~) bool
         +ContainsPosition(Position) bool
         +IsPositionEmpty(Position) bool
-        +IsPositionEmpty(Position) bool
+        +IsPositionEmpty(IEnumerable~Position~) bool
     }
 
     class Grid~T~{
-        +T[,] Pieces : readonly
-        +int TotalGrid : readonly
+        +T[,] Pieces get; private set;
+        +int TotalGrid get; private set;
 
         +Grid(int)
         +Grid(int, int)
 
         +PlaceItemOnGrid(Position, T) bool
-        +PlaceItemOnGrid(Dictionary~Position, T~) bool
+        +PlaceItemOnGrid(IDictionary~Position, T~) bool
         +ContainsPosition(Position) bool
         +IsPositionEmpty(Position) bool
-        +IsPositionEmpty(Position) bool
+        +IsPositionEmpty(IEnumerable~Position~) bool
     }
 }
 
@@ -85,9 +85,8 @@ namespace Players {
     }
 
     class Player {
-        -Random _idGenerator$
-        +int ID : readonly
-        +string Name : readonly
+        +int ID get; private set;
+        +string Name get; private set;
 
         +Player(string name)
         +Equals(object?) bool
@@ -95,8 +94,8 @@ namespace Players {
     }
 
     class PlayerBattleshipData {
-        +IBoard PlayerBoard : readonly
-        +Dictionary~IAmmo, int~ Ammo : readonly
+        +IBoard PlayerBoard get; private set;
+        +Dictionary~IAmmo, int~ Ammo get; private set;
 
         +PlayerBattleshipData(IBoard)
         +PlayerBattleshipData(IBoard, Dictionary~IAmmo, int~)
@@ -155,31 +154,8 @@ Ship --|> ShipDestroyer
 Ship --|> ShipSubmarine
 
 IShip --* Position
-Ship --* Position
-ShipBattleship --* Position
-ShipBlank --* Position
-ShipCarrier --* Position
-ShipCruiser --* Position
-ShipDestroyer --* Position
-ShipSubmarine --* Position
-
 IShip --* PegType
-Ship --* PegType
-ShipBattleship --* PegType
-ShipBlank --* PegType
-ShipCarrier --* PegType
-ShipCruiser --* PegType
-ShipDestroyer --* PegType
-ShipSubmarine --* PegType
-
 IShip --* ShipOrientation
-Ship --* ShipOrientation
-ShipBattleship --* ShipOrientation
-ShipBlank --* ShipOrientation
-ShipCarrier --* ShipOrientation
-ShipCruiser --* ShipOrientation
-ShipDestroyer --* ShipOrientation
-ShipSubmarine --* ShipOrientation
 namespace Ships {
     class IShip {
         <<Interface>>
@@ -191,99 +167,91 @@ namespace Ships {
         +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
         +GeneratePositions(Position, ShipOrientation) List~Position~
         +SinkShip() bool
+
+        +ToString() string
+        +Clone() IShip
     }
 
     class Ship {
         <<Abstract>>
-        +int ShipLength : readonly 
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +virtual int ShipLength get; protected set;
+        +virtual Dictionary ~Position, PegType~ position get; protected set;
+        +virtual bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +virtual AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
+        +virtual AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
+        +virtual GeneratePositions(Position, ShipOrientation) List~Position~
+        +virtual SinkShip() bool
+        +Clone() IShip*
     }
 
     class ShipBattleship {
-        +int ShipLength = 4
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 4
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
     }
 
     class ShipBlank {
-        +int ShipLength = 1
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 1
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
     }
 
     class ShipCarrier {
-        +int ShipLength = 5
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 5
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
     }
 
     class ShipCruiser {
-        +int ShipLength = 3
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 3
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
     }
 
     class ShipDestroyer {
-        +int ShipLength = 2
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 2
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
     }
 
     class ShipSubmarine {
-        +int ShipLength = 3
-        +Dictionary ~Position, PegType~ position : readonly
-        +bool IsAlive
+        +int ShipLength get; protected set; = 3
+        +Dictionary ~Position, PegType~ position get; protected set;
+        +bool IsAlive get; protected set; = true
 
-        +AssignPositions(Position, ShipOrientation) Dictionary ~Position, PegType~
-        +AssignPositions(List~Position~, PegType = NONE) Dictionary ~Position, PegType~
-        +GeneratePositions(Position, ShipOrientation) List~Position~
-        +SinkShip() bool
+        +ToString() string
+        +Clone() IShip
 
         +Equals(object?) bool
         +GetHashCode() int
@@ -297,25 +265,26 @@ IAmmo --|> MissileBarrage
 IAmmo --|> MissileSingle
 IAmmo --|> MissileNuclear
 IAmmo --* Position
-MissileBarrage --* Position
-MissileSingle --* Position
-MissileNuclear --* Position
 namespace Ammo {
     class IAmmo {
         <<Interface>>
-        +Shoot(Position origin) List~Position~
+        +Shoot(Position origin) IEnumerable~Position~
+
+        +ToString() string
+        +Equals() bool
+        +GetHashCode() int
     }
 
     class MissileBarrage{
-        +Shoot(Position position) List~Position~
+        +Shoot(Position position) IEnumerable~Position~
     }
 
     class MissileSingle{
-        +Shoot(Position position) List~Position~
+        +Shoot(Position position) IEnumerable~Position~
     }
 
     class MissileNuclear{
-        +Shoot(Position position) List~Position~
+        +Shoot(Position position) IEnumerable~Position~
     }
 }
 
@@ -331,33 +300,36 @@ GameController --* ShipOrientation
 class GameController{
     -IBoard _templateBoard
     -List~IShip~ _templateShips
-    -Dictionary~IAmmo, int~ _templateAmmo=
+    -Dictionary~IAmmo, int~ _templateAmmo
     -Dictionary~IPlayer, PlayerBattleshipData~ _playersData
     -Queue~IPlayer~ _activePlayer
     +GameStatus Status
+    -ILogger~GameController~? _log
    
-    +GameController(IPlayer, IPlayer, IBoard, List~IShip~, Dictionary~IAmmo, int~ = null)
+    +GameController(IPlayer, IPlayer, IBoard, IEnumerable~IShip~, IDictionary~IAmmo, int~? = null, ILogger~GameController~? = null)
     
-    +StartGame() GameStatus
-    +NextTurn() GameStatus
-    +ResetGame() GameStatus
-    +ResetGame(IBoard, List~IShip~) GameStatus
+    +StartGame(out string) GameStatus
+    +NextTurn(out string) GameStatus
+    +ResetGame(out string) GameStatus
+    +ResetGame(IBoard? = null, IEnumerable~IShip~? = null, IDictionary~IAmmo, int~? = null, out string) GameStatus
     
-    +PlayerPlaceShip(IPlayer, IShip, Position, ShipOrientation) bool
-    +PlayerShoot(IPlayer, IPlayer, Position, IAmmo) bool
+    +PlayerPlaceShip(IPlayer, IShip, Position, ShipOrientation, out string) bool
+    +PlayerShoot(IPlayer, IPlayer, Position, IAmmo, out string) bool
     +GivePlayerAdditionalAmmo(IAmmo, int) void
     
     
-    +GetPlayers() List~IPlayer~
+    +GetPlayers() IEnumerable~IPlayer~
     +GetCurrentActivePlayer() IPlayer
+    +PreviewNextPlayer() IPlayer
     +GetPlayerTurn() IPlayer[]
-    +GetPlayerBoard(IPlayer) IBoard
-    +GetPlayerGridShip(IPlayer) IGrid~IShip~
-    +GetPlayerGridPeg(IPlayer) IGrid~PegType~
-    +GetPlayerShipsStatus(IPlayer) Dictionary~IShip, bool~
-    +GetPlayerShipsAll(IPlayer) List~IShip~
-    +GetPlayerShipsLive(IPlayer) List~IShip~
-    +GetPlayerShipsSunk(IPlayer) List~IShip~
-    +GetPlayerAmmoStock(IPlayer) Dictionary~IAmmo, int~
-    +GetPlayerAmmoCount(IPlayer, IAmmo) int
+    +GetPlayerData(IPlayer, out string) PlayerBattleshipData?
+    +GetPlayerBoard(IPlayer, out string) IBoard?
+    +GetPlayerGridShip(IPlayer, out string) IGrid~IShip~?
+    +GetPlayerGridPeg(IPlayer, out string) IGrid~PegType~?
+    +GetPlayerShipsStatus(IPlayer, out string) IDictionary~IShip, bool~?
+    +GetPlayerShipsAll(IPlayer, out string) IEnumerable~IShip~?
+    +GetPlayerShipsLive(IPlayer, out string) IEnumerable~IShip~?
+    +GetPlayerShipsSunk(IPlayer, out string) IEnumerable~IShip~?
+    +GetPlayerAmmoStock(IPlayer, out string) IDictionary~IAmmo, int~?
+    +GetPlayerAmmoCount(IPlayer, IAmmo, out string) int?
 }
