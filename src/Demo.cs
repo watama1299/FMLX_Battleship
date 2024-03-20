@@ -239,7 +239,7 @@ class Demo {
             PrintShipStatus(board.ShipsOnBoard.ToDictionary()),
             PrintGrid(board.GridShip).Centered(),
             PrintGrid(board.GridPeg).Centered(),
-            PrintAmmo(ammo)
+            PrintAmmo(ammo.ToDictionary())
             );
 
         AnsiConsole.Write(ui);

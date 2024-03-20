@@ -15,7 +15,7 @@ public class PlayerBattleshipData
     /// <summary>
     /// Property which holds the player's ammo stock
     /// </summary>
-    public Dictionary<IAmmo, int> Ammo {get; private set;} = new();
+    public IDictionary<IAmmo, int> Ammo {get; private set;}
 
 
 
@@ -28,6 +28,7 @@ public class PlayerBattleshipData
     /// <param name="playerBoard">Board for the player to use</param>
     public PlayerBattleshipData(IBoard playerBoard) {
             PlayerBoard = playerBoard;
+            Ammo = new Dictionary<IAmmo, int>();
             Ammo.Add(new MissileSingle(), PlayerBoard.GridPeg.TotalGrid);
     }
 

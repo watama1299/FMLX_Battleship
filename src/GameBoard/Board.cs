@@ -57,6 +57,7 @@ public class Board : IBoard
             ShipsOnBoard.Add(playerShip, true);
             return true;
         }
+        
     public IShip? GetShipOnBoard(Position position) {
         IShip? ship = null;
 
@@ -67,9 +68,11 @@ public class Board : IBoard
         }
         return ship;
     }
+
     public bool CheckShipGridPosition(Position position) {
         return GridShip.IsPositionEmpty(position);
     }
+
     public bool CheckShipGridPosition(IEnumerable<Position> positions) {
         return GridShip.IsPositionEmpty((List<Position>) positions);
     }
@@ -140,6 +143,12 @@ public class Board : IBoard
         ShipsOnBoard = tempShips;
     }
 
+    public void PutPegOnBoard(IDictionary<Position, PegType> pegPositions) {
+        foreach (var kv in pegPositions) {
+            PutPegOnBoard(kv.Key, kv.Value);
+        }
+    }
+
     /// <summary>
     /// Method to put a singular peg on a singular position
     /// </summary>
@@ -148,11 +157,5 @@ public class Board : IBoard
     private void PutPegOnBoard(Position position, PegType peg) {
         var currentPeg = GridPeg.Items[position.X, position.Y];
         if (currentPeg == PegType.NONE) GridPeg.PlaceItemOnGrid(position, peg);
-    }
-
-    public void PutPegOnBoard(IDictionary<Position, PegType> pegPositions) {
-        foreach (var kv in pegPositions) {
-            PutPegOnBoard(kv.Key, kv.Value);
-        }
     }
 }

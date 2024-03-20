@@ -1,4 +1,3 @@
-using System.Net;
 using Battleship.Ammo;
 using Battleship.GameBoard;
 using Battleship.Players;
@@ -6,7 +5,6 @@ using Battleship.Ships;
 using Battleship.Utils;
 using Battleship.Utils.Enums;
 using Microsoft.Extensions.Logging;
-using Spectre.Console;
 namespace Battleship;
 
 public class GameController

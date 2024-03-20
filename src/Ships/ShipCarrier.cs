@@ -12,10 +12,19 @@ public class ShipCarrier : Ship, IShip
 
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="isAlive"></param>
     private ShipCarrier(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public ShipCarrier() {
         Positions = new Dictionary<Position, PegType>();
     }

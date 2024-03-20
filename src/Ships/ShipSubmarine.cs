@@ -12,10 +12,19 @@ public class ShipSubmarine : Ship, IShip
 
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="isAlive"></param>
     private ShipSubmarine(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public ShipSubmarine() {
         Positions = new Dictionary<Position, PegType>();
     }

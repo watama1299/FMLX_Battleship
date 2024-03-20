@@ -12,13 +12,23 @@ public class ShipBlank : Ship, IShip
 
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="isAlive"></param>
     private ShipBlank(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public ShipBlank() {
         Positions = new Dictionary<Position, PegType>();
     }
+
 
 
     // override object.ToString
