@@ -66,6 +66,8 @@ public class GameController
         IDictionary<IAmmo, int>? additionalAmmoType = null,
         ILogger<GameController>? logger = null
         ) {
+            _log = logger;
+
             _templateBoard = board;
             var boardRows = board.GridShip.Items.GetLength(0);
             var boardCols = board.GridShip.Items.GetLength(1);
@@ -97,8 +99,6 @@ public class GameController
             }
 
             Status = GameStatus.INIT;
-
-            _log = logger;
             _log?.LogInformation(@"GameController has been created with players {p1} and {p2}, board {board},
                                 ships {ships}, additional ammo {ammo} and logger {logger}",
                                 p1, p2, board, ships, additionalAmmoType, logger);
@@ -115,6 +115,7 @@ public class GameController
         errorMessage = string.Empty;
         if (Status != GameStatus.INIT) {
             errorMessage = "Game is not in an initialised state. Please initialise game first!";
+            _log?.LogWarning("Tried to start a game when it hasn't been initialised. Current game status: {status}", Status);
             return Status;
         }
         
@@ -129,10 +130,12 @@ public class GameController
             // change errormsg to string not exception
             if (playerShips is null || playerShips.Count == 0) {
                 errorMessage = "Player has no ships!";
+                _log?.LogWarning("Tried to start game but player {player} has no ships.", player);
                 return Status;
             }
             if (playerShips?.Count < _templateShips.Count) {
                 errorMessage = "Player havent't put down all their ships!";
+                _log?.LogWarning("Tried to start game but player {player} has not put down all their ships.", player);
                 return Status;
             }
         }
@@ -147,7 +150,7 @@ public class GameController
         }
 
         Status = GameStatus.ONGOING;
-        _log?.LogInformation("Game has started");
+        _log?.LogInformation("Game has started. Current game status: {status}", Status);
         return Status;
     }
 
@@ -163,6 +166,7 @@ public class GameController
         errorMessage = string.Empty;
         // check game status still ongoing
         if (Status != GameStatus.ONGOING) {
+            _log?.LogWarning("Tried to go to next player but no ongoing game. Current game status: {status}", Status);
             errorMessage = "No ongoing game!";
             return Status;
         }
@@ -170,14 +174,19 @@ public class GameController
         // get next player
         var nextPlayer = _activePlayer.Dequeue();
         var playerShips = new Dictionary<IShip, bool>(GetPlayerShipsStatus(nextPlayer, out errorMessage));
-        if (errorMessage == "No such player!") return Status;
+        if (errorMessage == "No such player!") {
+            _log?.LogWarning("Tried to go to next player but next player doesn't exist in the queue. Current game status: {status}", Status);
+            return Status;
+        }
 
         // check if next player still has live ships
         if (playerShips.ContainsValue(true)) {
             _activePlayer.Enqueue(nextPlayer);
+            _log?.LogInformation("Successfully going to the next player. Current game status: {status}", Status);
             return Status;
         }
         Status = GameStatus.ENDED;
+        _log?.LogInformation("Next player has no remaining ships left. Current game status: {status}", Status);
         return Status;
 
     }
@@ -192,6 +201,7 @@ public class GameController
     public GameStatus ResetGame(out string errorMessage) {
         errorMessage = string.Empty;
         if (Status != GameStatus.ENDED) {
+            _log?.LogWarning("Tried to go to reset game but game has not ended yet. Current game status: {status}", Status);
             errorMessage = "Game has not ended yet! It cannot be reset without first ending the game!";
             return Status;
         }
@@ -205,7 +215,9 @@ public class GameController
         }
         _playersData = tempData;
         _activePlayer = new(2);
+
         Status = GameStatus.INIT;
+        _log?.LogInformation("Game has been reset. Current game status: {status}", Status);
         return Status;
     }
 
@@ -223,6 +235,7 @@ public class GameController
                                 IDictionary<IAmmo, int>? newAdditionalAmmo = null) {
         errorMessage = string.Empty;
         if (Status != GameStatus.ENDED) {
+            _log?.LogWarning("Tried to go to reset game but game has not ended yet. Current game status: {status}", Status);
             errorMessage = "Game has not ended yet! It cannot be reset without first ending the game!";
             return Status;
         }
@@ -256,8 +269,6 @@ public class GameController
         ShipOrientation orientation,
         out string errorMessage
         ) {
-            errorMessage = string.Empty;
-
             bool found = false;
             foreach (var s in _templateShips) {
                 if (ship.GetType() == s.GetType()) {
@@ -265,13 +276,38 @@ public class GameController
                     break;
                 }
             }
-            if (!found) return false;
+            if (!found) {
+                _log?.LogWarning(@"Ship {ship} does not exist in the template ships {ships}.
+                                 Cancelling placement...",
+                                 ship,
+                                 _templateShips);
+                errorMessage = "This ship is not part of the list of ships that has been set previously!";
+                return false;
+            }
 
             var playerBoard = GetPlayerBoard(player, out errorMessage);
-            if (errorMessage == "No such player!") return false;
+            if (errorMessage == "No such player!") {
+                _log?.LogWarning(@"Player {player} was not found. Cancelling placement...",
+                                 player);
+                return false;
+            }
             
             bool successfulPlacement = playerBoard.PutShipOnBoard(ship, startCoord, orientation);
-            if (!successfulPlacement) return false;
+            if (!successfulPlacement) {
+                _log?.LogWarning(@"Ship {ship} couldn't be put at position {position} with orientation {orientation}.
+                                 Cancelling placement...",
+                                 ship,
+                                 startCoord,
+                                 orientation);
+                errorMessage = $"This {ship} couldn't be placed at {startCoord} with this {orientation}!";
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            _log?.LogInformation(@"Ship {ship} was successfully put at position {position} with orientation {orientation}.",
+                             ship,
+                             startCoord,
+                             orientation);
             return true;
     }
 
@@ -296,43 +332,100 @@ public class GameController
         ) {
             errorMessage = string.Empty;
 
+            // check existence of both attacker and target
+            if (!_playersData.ContainsKey(attacker)) {
+                _log?.LogWarning(@"Player attacking {attacker} does not exist in players list {list}.
+                                 Cancelling attack...",
+                                 attacker,
+                                 _playersData.Keys);
+                errorMessage = "Attacker doesn't exist in players list!";
+                return false;
+            }
+            if (!_playersData.ContainsKey(target)) {
+                _log?.LogWarning(@"Player targetted {target} does not exist in players list {list}.
+                                 Cancelling attack...",
+                                 attacker,
+                                 _playersData.Keys);
+                errorMessage = "Target player doesn't exist in players list!";
+                return false;
+            }
+
             // check ammo count
             var ammoLeft = GetPlayerAmmoCount(attacker, shootMode, out errorMessage);
-            if (ammoLeft <= 0) return false;
+            if (ammoLeft <= 0) {
+                _log?.LogWarning(@"Player {attacker} does not have enough {ammo}. Current amount: {amount}.
+                                 Cancelling attack...",
+                                 attacker,
+                                 shootMode,
+                                 ammoLeft);
+                return false;
+            }
 
             // check target board, then update
             var targetBoard = GetPlayerBoard(target, out errorMessage);
-            if (errorMessage == "No such player!") return false;
+            if (errorMessage == "No such player!") {
+                _log?.LogWarning(@"Player {target} does not exist. Cancelling attack...",
+                                 target);
+                return false;
+            }
 
-            var grid = targetBoard?.GridShip;
-            if (!grid.ContainsPosition(position)) return false;
+            var grid = targetBoard.GridShip;
+            if (!grid.ContainsPosition(position)) {
+                _log?.LogWarning(@"Targeted position {position} is out of the target grid {grid}.
+                                 Cancelling attack...",
+                                 position,
+                                 grid);
+                return false;
+            }
 
             // 
             var shipOnPosition = targetBoard?.GetShipOnBoard(position);
             if (shipOnPosition is not null) {
                 if (shipOnPosition.GetPegOnPosition(position) == PegType.MISS
-                    || shipOnPosition.GetPegOnPosition(position) == PegType.HIT) return false;
+                    || shipOnPosition.GetPegOnPosition(position) == PegType.HIT) {
+                        _log?.LogInformation(@"Position {position} has been attacked before.
+                                             Cancelling attack...",
+                                             position);
+                        return false;
+                    }
             }
             var positionShot = targetBoard?.IncomingAttack(position, shootMode);
             
             // update attacker board and data
             var attackerBoard = GetPlayerBoard(attacker, out errorMessage);
-            if (errorMessage == "No such player!") return false;
+            if (errorMessage == "No such player!") {
+                _log?.LogWarning(@"Player attacking {attacker} does not exist in players list {list}.
+                                 Cancelling attack...",
+                                 attacker,
+                                 _playersData.Keys);
+                errorMessage = "Attacker doesn't exist in players list!";
+                return false;
+            }
 
             attackerBoard?.PutPegOnBoard(positionShot);
             _playersData[attacker].RemoveAmmo(shootMode, 1);
 
+            _log?.LogInformation(@"Player {attacker} successfully attacked player {target}
+                                 at position {position} using {ammo}",
+                                 attacker,
+                                 target,
+                                 position,
+                                 shootMode);
             return true;
     }
 
     /// <summary>
-    /// Method to give players additional ammo
+    /// Method to give both players additional ammo
     /// </summary>
     /// <param name="ammoType">The type of ammo</param>
     /// <param name="amount">The amount of additional ammo given</param>
     public void GivePlayersAdditionalAmmo(IAmmo ammoType, int amount) {
-        foreach (var pd in _playersData.Values) {
-            pd.GiveAmmo(ammoType, amount);
+        foreach (var pd in _playersData) {
+            _log?.LogInformation(@"Giving player {player} extra ammo: {amount}x {ammo}",
+                                 pd.Key,
+                                 amount,
+                                 ammoType);
+            pd.Value.GiveAmmo(ammoType, amount);
         }
     }
 
@@ -343,7 +436,11 @@ public class GameController
     /// </summary>
     /// <returns>The list of players</returns>
     public IEnumerable<IPlayer> GetPlayers() {
-        return _playersData.Keys.ToList();
+        var tempList = _playersData.Keys.ToList();
+        _log?.LogInformation(@"Getting all players in the game, {p1} and {p2}",
+                             tempList.First(),
+                             tempList.Last());
+        return tempList;
     }
 
     /// <summary>
@@ -351,7 +448,9 @@ public class GameController
     /// </summary>
     /// <returns>Current active player</returns>
     public IPlayer GetCurrentActivePlayer() {
-        return _activePlayer.Peek();
+        var tempPlayer = _activePlayer.Peek();
+        _log?.LogInformation(@"Getting current active player. Current active player: {player}", tempPlayer);
+        return tempPlayer;
     }
     
     /// <summary>
@@ -361,8 +460,12 @@ public class GameController
     public IPlayer? PreviewNextPlayer() {
         var currentPlayer = GetCurrentActivePlayer();
         foreach (var p in GetPlayers()) {
-            if (!p.Equals(currentPlayer)) return p;
+            if (!p.Equals(currentPlayer)) {
+                _log?.LogInformation(@"Getting next player. Next player: {player}", p);
+                return p;
+            }
         }
+        _log?.LogWarning(@"Next player doesn't exist.");
         return null;
     }
     
@@ -371,7 +474,11 @@ public class GameController
     /// </summary>
     /// <returns><c>IPlayer[]</c> Player in array of their turn order</returns>
     public IPlayer[] GetPlayerTurn() {
-        return _activePlayer.ToArray();
+        var tempArray = _activePlayer.ToArray();
+        _log?.LogInformation(@"Current player: {p1}. Next player: {p2}",
+                             tempArray[0],
+                             tempArray[1]); 
+        return tempArray;
     }
 
     /// <summary>
@@ -383,11 +490,16 @@ public class GameController
     public PlayerBattleshipData? GetPlayerData(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null player data...", player);
             return null;
         }
         
         errorMessage = string.Empty;
-        return _playersData[player];
+        var tempData = _playersData[player];
+        _log?.LogInformation(@"Player {player} successfully found. Player's game data: {data}",
+                             player,
+                             tempData);
+        return tempData;
     }
 
     /// <summary>
@@ -399,11 +511,16 @@ public class GameController
     public IBoard? GetPlayerBoard(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null board...", player);
             return null;
         }
 
         errorMessage = string.Empty;
-        return _playersData[player].PlayerBoard;
+        var tempBoard = _playersData[player].PlayerBoard;
+        _log?.LogInformation(@"Player {player} successfully found. Player's board data: {board}",
+                             player,
+                             tempBoard);
+        return tempBoard;
     }
 
     /// <summary>
@@ -414,7 +531,16 @@ public class GameController
     /// <returns>A grid of ships</returns>
     public IGrid<IShip>? GetPlayerGridShip(IPlayer player, out string errorMessage) {
         var board = GetPlayerBoard(player, out errorMessage);
-        return board?.GridShip;
+        if (board is null) {
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null grid ship...", player);
+            return null;
+        }
+
+        var tempGridShip = board?.GridShip;
+        _log?.LogInformation(@"Player {player} successfully found. Player's grid ship data: {gridShip}",
+                             player,
+                             tempGridShip);
+        return tempGridShip;
     }
     
     /// <summary>
@@ -425,7 +551,16 @@ public class GameController
     /// <returns>A grid of pegs</returns>
     public IGrid<PegType>? GetPlayerGridPeg(IPlayer player, out string errorMessage) {
         var board = GetPlayerBoard(player, out errorMessage);
-        return board?.GridPeg;
+        if (board is null) {
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null grid peg...", player);
+            return null;
+        }
+
+        var tempGridPeg = board?.GridPeg;
+        _log?.LogInformation(@"Player {player} successfully found. Player's grid peg data: {gridPeg}",
+                             player,
+                             tempGridPeg);
+        return tempGridPeg;
     }
 
     /// <summary>
@@ -437,11 +572,16 @@ public class GameController
     public IDictionary<IShip, bool>? GetPlayerShipsStatus(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null dictionary of ship stasus...", player);
             return null;
         }
 
         errorMessage = string.Empty;
-        return _playersData[player].PlayerBoard.ShipsOnBoard;
+        var shipsAndStatus = _playersData[player].PlayerBoard.ShipsOnBoard;
+        _log?.LogInformation(@"Player {player} successfully found. Player's ship data: {ships}",
+                             player,
+                             shipsAndStatus);
+        return shipsAndStatus;
     }
 
     /// <summary>
@@ -451,13 +591,17 @@ public class GameController
     /// <param name="errorMessage">Error message if player not found</param>
     /// <returns>A list of ships owned by the player</returns>
     public IEnumerable<IShip>? GetPlayerShipsAll(IPlayer player, out string errorMessage) {
-        var errorMsg = "";
-        var output = GetPlayerShipsStatus(player, out errorMsg);
-        errorMessage = errorMsg;
+        var output = GetPlayerShipsStatus(player, out errorMessage);
         if (errorMessage == "No such player!") {
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null list of ships...", player);
             return null;
         }
-        return output?.Keys.ToList();
+
+        var ships = output?.Keys.ToList();
+        _log?.LogInformation(@"Player {player} successfully found. Player's ships: {ships}",
+                             player,
+                             ships);
+        return ships;
     }
 
     /// <summary>
@@ -469,6 +613,7 @@ public class GameController
     public IEnumerable<IShip>? GetPlayerShipsLive(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null list of live ship...", player);
             return null;
         }
 
@@ -479,7 +624,11 @@ public class GameController
                 liveShips.Add(ship.Key);
             }
         }
+
         errorMessage = string.Empty;
+        _log?.LogInformation(@"Player {player} successfully found. Player's live ships: {ships}",
+                             player,
+                             liveShips);
         return liveShips;
     }
 
@@ -492,6 +641,7 @@ public class GameController
     public IEnumerable<IShip>? GetPlayerShipsSunk(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null list of sunk ships...", player);
             return null;
         }
 
@@ -502,7 +652,11 @@ public class GameController
                 sunkShips.Add(ship.Key);
             }
         }
+
         errorMessage = string.Empty;
+        _log?.LogInformation(@"Player {player} successfully found. Player's sunked ships: {ships}",
+                             player,
+                             sunkShips);
         return sunkShips;
     }
 
@@ -515,11 +669,16 @@ public class GameController
     public IDictionary<IAmmo, int>? GetPlayerAmmoStock(IPlayer player, out string errorMessage) {
         if (!_playersData.ContainsKey(player)) {
             errorMessage = "No such player!";
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null dictionary of ammo stock...", player);
             return null;
         }
 
         errorMessage = string.Empty;
-        return _playersData[player].Ammo;
+        var tempStock = _playersData[player].Ammo;
+        _log?.LogInformation(@"Player {player} successfully found. Ammo stock: {stock}",
+                             player,
+                             tempStock);
+        return tempStock;
     }
 
     /// <summary>
@@ -532,14 +691,21 @@ public class GameController
     public int? GetPlayerAmmoCount(IPlayer player, IAmmo ammoType, out string errorMessage) {
         var ammo = GetPlayerAmmoStock(player, out errorMessage);
         if (errorMessage == "No such player!") {
+            _log?.LogWarning(@"Player {player} does not exist in the current game. Returning null int of ammo count...", player);
             return null;
         }
 
         if (!ammo.ContainsKey(ammoType)) {
             errorMessage = "No such ammo!";
+            _log?.LogWarning(@"Ammo {ammo} does not exist in the current game. Returning null int of ammo count...", ammoType);
             return null;
         }
 
-        return ammo?[ammoType];
+        var tempCount = ammo?[ammoType];
+        _log?.LogInformation(@"Player {player} and Ammo {ammo} successfully found. Ammo count: {count}",
+                             player,
+                             ammoType,
+                             tempCount);
+        return tempCount;
     }
 }
