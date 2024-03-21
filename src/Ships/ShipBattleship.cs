@@ -2,6 +2,9 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
+/// <summary>
+/// Concrete class representing a Battleship ship piece in a normal game of Battleship
+/// </summary>
 public class ShipBattleship : Ship
 {
     public override int ShipLength {get; protected set;} = 4;

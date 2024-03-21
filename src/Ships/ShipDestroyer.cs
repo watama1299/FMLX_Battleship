@@ -2,6 +2,9 @@ using Battleship.Utils;
 using Battleship.Utils.Enums;
 namespace Battleship.Ships;
 
+/// <summary>
+/// Concrete class representing a Destroyer ship piece in a normal game of Battleship
+/// </summary>
 public class ShipDestroyer : Ship, IShip
 {
     public override int ShipLength {get; protected set;} = 2;
@@ -13,17 +16,17 @@ public class ShipDestroyer : Ship, IShip
 
 
     /// <summary>
-    /// 
+    /// Private constructor, only used during cloning process
     /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="isAlive"></param>
+    /// <param name="pos">List of positions</param>
+    /// <param name="isAlive">Alive(true) / Dead(false)</param>
     private ShipDestroyer(IDictionary<Position, PegType> pos, bool isAlive) {
         Positions = (Dictionary<Position, PegType>) pos;
         IsAlive = isAlive;
     }
 
     /// <summary>
-    /// 
+    /// Constructor for the ship type Destroyer
     /// </summary>
     public ShipDestroyer() {
         Positions = new Dictionary<Position, PegType>();

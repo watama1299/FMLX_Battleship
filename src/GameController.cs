@@ -67,6 +67,9 @@ public class GameController
         ILogger<GameController>? logger = null
         ) {
             _log = logger;
+            _log?.LogInformation(@"{logger} has been assigned to log GameController {gc}",
+                                 logger,
+                                 this);
 
             _templateBoard = board;
             var boardRows = board.GridShip.Items.GetLength(0);
